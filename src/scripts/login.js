@@ -19,13 +19,13 @@ const spaces = process.argv[7];
 const proxyFile = process.argv[8];
 const passwords = utils.getListOfPasswords(passwordFile)
 
-if (passwordFile === null) {
+if (passwords === null) {
     utils.coloredText(`\n${getSpaces(spaces)}§f[§c#§f] §fThe entered password file is not valid.`);
     process.exit(1);
 }
 
 if (proxyFile) {
-    proxyTest = utils.getListOfPasswords(proxyFile)
+    let proxyTest = utils.getListOfPasswords(proxyFile)
 
     if (proxyTest === null) {
         utils.coloredText(`\n${getSpaces(spaces)}§f[§c#§f] §fThe entered proxy file (§c${proxyFile}§f) is not valid.`);
@@ -99,6 +99,7 @@ function createBot(proxy=null) {
         }
 
         else if (error.message.includes('unsupported protocol version:')) {
+            let protocol;
             try {
                 protocol = error.message.match(/\d+/)['input'].split(': ')[1]
                 
@@ -127,9 +128,9 @@ function createBot(proxy=null) {
     bot.on('message', (message) => {
         let serverMessage = message.toString().toLowerCase();
 
-        if (attempts === passwords.length[-1]) {
+        if (attempts >= passwords.length) {
             setTimeout(() => {
-                utils.coloredText((`\n${getSpaces(spaces)}§f[§c#§f] &cThe password is not found in the password list.`));
+                utils.coloredText((`\n${getSpaces(spaces)}§f[§c#§f] §cThe password is not found in the password list.`));
                 bot.quit();
                 process.exit(1);
             }, 1000);

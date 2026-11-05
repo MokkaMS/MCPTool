@@ -32,6 +32,8 @@ def ipinfo_command(ip_address, *args):
             log_file = LogManager.create_log_file('ipinfo')
             LogManager.write_log(log_file, 'ipinfo', f'IP: {ip_address}\n')
 
+        log_data = ''
+
         if ip_address_information[0] is not None:
             # Display geolocation information.
             paint(f'\n{GetUtilities.get_spaces()}&4[{GetUtilities.get_translated_text(["commands", "ipinfo", "result1"])}&4] &f&l{ip_address_information[0]["continent"]} (&c{ip_address_information[0]["continentCode"]}&f&l)')
@@ -41,7 +43,7 @@ def ipinfo_command(ip_address, *args):
             paint(f'{GetUtilities.get_spaces()}&4[{GetUtilities.get_translated_text(["commands", "ipinfo", "result5"])}&4] &f&l{ip_address_information[0]["isp"]} (&c{ip_address_information[0]["org"]}&f&l)')
             
             log_data = f'''
-[{GetUtilities.get_translated_text(["commands", "ipinfo", "result1"])} {ip_address_information[0]["continent"]} ({ip_address_information[0]["continentCode"]})
+[{GetUtilities.get_translated_text(["commands", "ipinfo", "result1"])}] {ip_address_information[0]["continent"]} ({ip_address_information[0]["continentCode"]})
 [{GetUtilities.get_translated_text(["commands", "ipinfo", "result2"])}] {ip_address_information[0]["country"]} ({ip_address_information[0]["countryCode"]})
 [{GetUtilities.get_translated_text(["commands", "ipinfo", "result3"])}] {ip_address_information[0]["regionName"]} ({ip_address_information[0]["region"]})
 [{GetUtilities.get_translated_text(["commands", "ipinfo", "result4"])}] {ip_address_information[0]["city"]} ({ip_address_information[0]["timezone"]})
@@ -56,11 +58,11 @@ def ipinfo_command(ip_address, *args):
                 # Display reverse DNS information for multiple domains.
                 for domain in ip_address_information[1]:
                     paint(f'{GetUtilities.get_spaces()}{GetUtilities.get_translated_text(["commands", "ipinfo", "reverse"])} &f&l{domain}')
-                    log_data += f'{GetUtilities.get_translated_text(["commands", "ipinfo", "reverse"])} {domain}'
+                    log_data += f'{GetUtilities.get_translated_text(["commands", "ipinfo", "reverse"])} {domain}\n'
             else:
                 # Display reverse DNS information for a single domain.
                 paint(f'{GetUtilities.get_spaces()}{GetUtilities.get_translated_text(["commands", "ipinfo", "reverse"])} &f&l{ip_address_information[1]}')
-                log_data += f'{GetUtilities.get_translated_text(["commands", "ipinfo", "reverse"])} {ip_address_information[1]}'
+                log_data += f'{GetUtilities.get_translated_text(["commands", "ipinfo", "reverse"])} {ip_address_information[1]}\n'
 
         if JsonManager.get('logs'):
             LogManager.write_log(log_file, 'ipinfo', mcremove(log_data))

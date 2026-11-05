@@ -64,7 +64,7 @@ class FakeProxy:
 
         # Clear the existing data file for Fakeproxy.
         if os.path.exists('./src/proxy/jar/fakeproxy/plugins/RPoisoner/data.txt'):
-            FileUtilities.write_file(f'./src/proxy/jar/fakeproxy/plugins/RPoisoner/config/commandPrefix', '', 'w+', True)
+            FileUtilities.write_file('./src/proxy/jar/fakeproxy/plugins/RPoisoner/data.txt', '', 'w+', True)
 
         return True
 
@@ -101,6 +101,7 @@ class FakeProxy:
                         ip_address = player_data[2]
                         username_data = f'&c&l{username} &f&l(&c&l{ip_address}&f&l)'
                         current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                        log_data = ''
 
                         if player_data[0] == '[CONNECTING]':
                             # Display a message for a player connecting.
@@ -124,7 +125,7 @@ class FakeProxy:
                             paint(f'{GetUtilities.get_spaces()}💣 &f{current_time} {GetUtilities.get_translated_text(["commands", "fakeproxy", "commandCaptured"]).replace("[0]", username_data)} &a{command}')
                             log_data = f'\n{current_time} 💣 {username_data} => {command}'
 
-                        if JsonManager.get('logs'):
+                        if JsonManager.get('logs') and log_data:
                             # If logging is enabled, write the log data to the specified log file.
                             LogManager.write_log(log_file, 'fakeproxy', mcremove(log_data))
 

@@ -79,7 +79,7 @@ def playerlogs_command(server):
                 for player in removed_players:
                     user = player.split(' (')[0]
                     uuid = re.search(regex, player).group(1)
-                    data = f'{user} &f&l({GetUtilities.get_uuid_color(user, uuid)}{uuid}&f&l'
+                    data = f'{user} &f&l({GetUtilities.get_uuid_color(user, uuid)}{uuid}&f&l)'
                     log_data = f'\n🔴 {current_time} {data}'
                     paint(f'\n{GetUtilities.get_spaces()}{GetUtilities.get_translated_text(["commands", "playerlogs", "disconnectedUser"]).replace("[0]", current_time).replace("[1]", data)}')
 
@@ -92,7 +92,7 @@ def playerlogs_command(server):
                     data = f'{user} &f&l({GetUtilities.get_uuid_color(user, uuid)}{uuid}&f&l)'
                     log_data = f'\n🟢 {current_time} {data}'
                     paint(f'\n{GetUtilities.get_spaces()}{GetUtilities.get_translated_text(["commands", "playerlogs", "connectedUser"]).replace("[0]", current_time).replace("[1]", data)}')
-                    players.append(player)
+
 
                     if JsonManager.get('logs'):
                         LogManager.write_log(log_file, 'playerlogs', mcremove(log_data))

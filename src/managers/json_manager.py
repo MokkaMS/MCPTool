@@ -19,7 +19,7 @@ class JsonManager:
             with open(file_path, 'r', encoding='utf8') as f:
                 return json.loads(f.read())
 
-        return JsonManager.DEFAULT_CONFIG
+        return getattr(JsonManager, 'DEFAULT_CONFIG', {})
 
     @staticmethod
     def save_json(content, file_path):

@@ -54,7 +54,7 @@ def rcon_command(server, password, *args):
 
     except ConnectionRefusedError:
         # Handle a connection refused error gracefully
-        paint(f'\n{GetUtilities.get_spaces()}{GetUtilities.get_translated_text(["prefix"])}{GetUtilities.get_translated_text(["commands", "rcon", "connectionRefused"])}')
+        paint(f'\n{GetUtilities.get_spaces()}{GetUtilities.get_translated_text(["prefix"])}{GetUtilities.get_translated_text(["commands", "rcon", "refusedConnection"])}')
 
     except MCRconException:
         # Handle an exception indicating an invalid RCON password gracefully
@@ -69,4 +69,5 @@ def rcon_command(server, password, *args):
 
     except Exception as e:
         # Handle other exceptions and display the error message
-        paint(f'\n{GetUtilities.get_spaces()}{GetUtilities.get_translated_text(["prefix"])}{GetUtilities.get_translated_text(["commands", "rcon", "error"]).replace("[0]", str(e))}')
+        err_text = GetUtilities.get_translated_text(["commands", "rcon", "error"]) or GetUtilities.get_translated_text(["commands", "rconbrute", "error"])
+        paint(f'\n{GetUtilities.get_spaces()}{GetUtilities.get_translated_text(["prefix"])}{err_text.replace("[0]", str(e))}')

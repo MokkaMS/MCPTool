@@ -35,7 +35,7 @@ def checker_command(file, *args):
         with open(file, encoding=CheckUtilities.check_file_encoding(file)) as f:
             for line in f:
                 # Use regular expression to find server addresses in the line
-                servers = re.findall('\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\:\d{1,5}', line)
+                servers = re.findall(r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d{1,5}', line)
 
                 for server in servers:
                     # Get data for each server

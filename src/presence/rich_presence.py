@@ -16,9 +16,12 @@ class RichPresenceUpdater:
             bool: RichPresence Status.
         """
 
-        with open('src/presence/richPresence.status', 'r') as f:
-            if f.read() == 'True':
-                return True
+        try:
+            with open('src/presence/richPresence.status', 'r') as f:
+                if f.read() == 'True':
+                    return True
+        except FileNotFoundError:
+            pass
 
         return False
 
@@ -31,8 +34,11 @@ class RichPresenceUpdater:
             str: Command
         """
 
-        with open('src/presence/richPresence.command', 'r') as f:
-            return f.read()
+        try:
+            with open('src/presence/richPresence.command', 'r') as f:
+                return f.read()
+        except FileNotFoundError:
+            return 'In the main menu'
 
     @staticmethod
     def change_rp_status(status):

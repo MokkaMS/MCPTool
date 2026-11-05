@@ -63,7 +63,7 @@ class ProxyLauncher:
                     LogManager.write_log(log_file, 'fakeproxy', f'{current_time} Target: {address}\n')
 
                 else:
-                    LogManager.write_log(log_file, 'fakeproxy', f'{current_time} Target: {address} (Forwading mode: {velocity_mode})\n')
+                    LogManager.write_log(log_file, 'fakeproxy', f'{current_time} Target: {address} (Forwarding mode: {velocity_mode})\n')
 
             # Write the modified configuration to a Velocity TOML file.
             FileUtilities.write_file(f'./src/proxy/jar/{proxy_type}/velocity.toml', proxy_config, 'w+', True)

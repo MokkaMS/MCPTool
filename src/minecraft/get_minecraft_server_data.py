@@ -123,7 +123,7 @@ class GetMinecraftServerData:
                         r_json["players"]["max"] if 'players' in r_json else '0',
                         GetUtilities.get_clean_list_player_names(r_json["players"]["list"]) if "list" in r_json["players"] else None,
                         r_json["players"]["list"] if "list" in r_json["players"] else r_json["info"]["raw"] if "info" in r_json else None,
-                        {r_json["icon"]} if 'icon' in r_json else None,
+                        r_json["icon"] if 'icon' in r_json else None,
                         None,
                         [],
                         None,
@@ -141,7 +141,7 @@ class GetMinecraftServerData:
                         r_json["players"]["max"] if 'players' in r_json else '0',
                         GetUtilities.get_clean_list_player_names(r_json["players"]["list"]) if "list" in r_json["players"] else None,
                         r_json["players"]["list"] if "list" in r_json["players"] else r_json["info"]["raw"] if "info" in r_json else None,
-                        {r_json["icon"]} if 'icon' in r_json else None,
+                        r_json["icon"] if 'icon' in r_json else None,
                         None,
                         [],
                         None,
@@ -165,10 +165,10 @@ class GetMinecraftServerData:
                         f'{r_json["ip"]}:{r_json["port"]}',
                         motd,
                         version,
-                        r_json["protocol"]["version"],
+                        r_json["protocol"]["version"] if "protocol" in r_json and "version" in r_json["protocol"] else "0",
                         r_json['software'] if 'software' in r_json else None,
-                        r_json["players"]["online"],
-                        r_json["players"]["max"],
+                        r_json["players"]["online"] if "players" in r_json and "online" in r_json["players"] else "0",
+                        r_json["players"]["max"] if "players" in r_json and "max" in r_json["players"] else "0",
                         r_json['map']['raw'] if 'map' in r_json else None,
                         r_json['gamemode'] if 'gamemode' in r_json else None,
                         None,
@@ -227,7 +227,7 @@ class GetMinecraftServerData:
                         r_json["players"]["max"] if 'players' in r_json else '0',
                         GetUtilities.get_clean_list_player_names(r_json["players"]["list"]) if "list" in r_json["players"] else None,
                         r_json["players"]["list"] if "list" in r_json["players"] else r_json["info"]["raw"] if "info" in r_json else None,
-                        {r_json["icon"]} if 'icon' in r_json else None,
+                        r_json["icon"] if 'icon' in r_json else None,
                         None,
                         [],
                         None,
@@ -245,7 +245,7 @@ class GetMinecraftServerData:
                         r_json["players"]["max"] if 'players' in r_json else '0',
                         GetUtilities.get_clean_list_player_names(r_json["players"]["list"]) if "list" in r_json["players"] else None,
                         r_json["players"]["list"] if "list" in r_json["players"] else r_json["info"]["raw"] if "info" in r_json else None,
-                        {r_json["icon"]} if 'icon' in r_json else None,
+                        r_json["icon"] if 'icon' in r_json else None,
                         None,
                         [],
                         None,
@@ -272,8 +272,8 @@ class GetMinecraftServerData:
                         version,
                         r_json["version"]["protocol"] if 'version' in r_json else '47',
                         r_json['software'] if 'software' in r_json else None,
-                        r_json["players"]["online"],
-                        r_json["players"]["max"],
+                        r_json["players"]["online"] if "players" in r_json and "online" in r_json["players"] else "0",
+                        r_json["players"]["max"] if "players" in r_json and "max" in r_json["players"] else "0",
                         r_json['map']['raw'] if 'map' in r_json else None,
                         r_json['gamemode'] if 'gamemode' in r_json else None,
                         None,
@@ -301,7 +301,7 @@ class GetMinecraftServerData:
             else:
                 key_order = ['platform_type', 'ip_port', 'motd', 'version', 'protocol', 'brand', 'connected_players', 'max_player_limit', 'map', 'gamemode', 'latency', 'bot_response']
 
-            return {key: response[key] for key in key_order}
+            return {key: response[key] for key in key_order if key in response}
         
         else:
             return None

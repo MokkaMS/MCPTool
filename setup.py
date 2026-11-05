@@ -123,7 +123,7 @@ class Setup:
         import requests
 
         if os.name == 'nt':
-            response = requests.get('https://nodejs.org/es/download')
+            response = requests.get('https://nodejs.org/en/download')
 
             # Extract the download link using regex
             link_match = re.search(r'<a href="([^"]+)">64-bit', response.text)
@@ -269,7 +269,7 @@ class Setup:
                 Setup.install_ngrok()
 
         if Setup.check_termux():
-            if not Setup.check_termux():
+            if not Setup.check_by_command(f'sox --version {Setup.hide_output}'):
                 answer = Setup.ask('\n[-] Sox is not installed on your system. This dependency is optional. Do you want to install it to access all MCPTool options? y/n > ')
 
                 if answer:
@@ -284,7 +284,7 @@ if __name__ == '__main__':
     try:
         if len(sys.argv) >= 2:
             if sys.argv[1] == '--debug':
-                hide_output = ''
+                Setup.hide_output = ''
 
         Setup.start_setup()
 

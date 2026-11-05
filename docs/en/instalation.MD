@@ -49,7 +49,7 @@ You can install python3 using the **apt** package manager.
 
 ## Windows
 
-To install *NodeJS* on **Windows** you must download the latest version from its official website: https://nodejs.org/es/
+To install *NodeJS* on **Windows** you must download the latest version from its official website: https://nodejs.org/en/
 
 ## Linux
 

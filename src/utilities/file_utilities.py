@@ -38,7 +38,7 @@ class FileUtilities:
         """
             
         try:
-            with open(file, 'r+', encoding=CheckUtilities.check_file_encoding(file)) as f:
+            with open(file, 'r', encoding=CheckUtilities.check_file_encoding(file)) as f:
                 if mode == 'read':
                     return f.read()
                 

@@ -1,5 +1,5 @@
 const fs = require('fs');
-const mccolors = require('minecraft-colors')
+const mccolors = require('minecraft-colors');
 
 
 function getTextFromJSON(json) {
@@ -75,7 +75,7 @@ function generateFilename(name) {
     const filename = `${name}_${day}-${month}-${year}_${hour}.${minute}.${second}.txt`;
 
     if (fs.existsSync(filename)) {
-        return generateFilename();
+        return generateFilename(name);
     }
 
     return filename;
@@ -93,14 +93,14 @@ function readFile(commandFile) {
 function getMessages(file) {
     try {        
         const messagesFile = fs.readFileSync(file, 'utf8');
-        const messagesList = messagesFile.split('\r\n');
+        const messagesList = messagesFile.split(/\r?\n/).map(s => s.trim()).filter(s => s.length > 0);
 
         if (messagesList.length >= 1) {
             return messagesList;
         }
                 
         return null;
-    } catch(_) {console.log(_);}
+    } catch(_) {}
     return null;
 }
 
@@ -108,7 +108,7 @@ function getMessages(file) {
 function getProxy(file) {
     try {        
         const proxyFile = fs.readFileSync(file, 'utf8');
-        const proxyList = proxyFile.split('\r\n');
+        const proxyList = proxyFile.split(/\r?\n/).map(s => s.trim()).filter(s => s.length > 0);
 
         if (proxyList.length >= 1) {
             let randomProxy = proxyList[Math.floor(Math.random() * proxyList.length)].replace(/\s+/g, '');
@@ -125,10 +125,10 @@ function getProxy(file) {
 function getUsername(file) {
     try {        
         const usernameFile = fs.readFileSync(file, 'utf8');
-        const usernameList = usernameFile.split('\r\n');
+        const usernameList = usernameFile.split(/\r?\n/).map(s => s.trim()).filter(s => s.length > 0);
 
         if (usernameList.length >= 1) {
-            return usernameList[Math.floor(Math.random() * usernameList.length)].replace(/\s+/g, '')
+            return usernameList[Math.floor(Math.random() * usernameList.length)].replace(/\s+/g, '');
         }
                 
         return null;
@@ -140,7 +140,7 @@ function getUsername(file) {
 function getListOfPasswords(file){
     try {
         const passwordFile = fs.readFileSync(file, 'utf8');
-        const passwordList = passwordFile.split('\r\n');
+        const passwordList = passwordFile.split(/\r?\n/).map(s => s.trim()).filter(s => s.length > 0);
 
         if (passwordList.length >= 1) {
             return passwordList;
@@ -150,6 +150,10 @@ function getListOfPasswords(file){
     } catch (_) {
         return null;
     }
+}
+
+function getSpaces(spaces) {
+    return ' '.repeat(parseInt(spaces) || 0);
 }
 
 
@@ -181,5 +185,6 @@ module.exports = {
     getListOfPasswords: getListOfPasswords,
     getUsername: getUsername,
     getProxy: getProxy,
+    getSpaces: getSpaces,
     tab: tab
-}
+};

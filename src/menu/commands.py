@@ -38,7 +38,7 @@ commands = {
     **dict.fromkeys(['06', 'websearch'], websearch_command),
     **dict.fromkeys(['07', 'subdomains'], subdomains_command),
     **dict.fromkeys(['08', 'scan'], scan_command),
-    **dict.fromkeys({'09', 'listening'}, listening_command),
+    **dict.fromkeys(['09', 'listening'], listening_command),
     **dict.fromkeys(['10', 'playerlogs'], playerlogs_command),
     **dict.fromkeys(['12', 'fakeproxy'], fakeproxy_command),
     **dict.fromkeys(['13', 'login'], login_command),

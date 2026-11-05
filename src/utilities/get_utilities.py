@@ -75,7 +75,11 @@ class GetUtilities:
             str: A cleaned string representing player names with optional UUIDs.
         """
         
+        if not player_list:
+            return None
+
         texts_with_spaces = 0
+        username_variable = 'name'
 
         for player in player_list:
             if 'name' in player:
@@ -302,6 +306,7 @@ class GetUtilities:
         ]
         return headers_list
     
+    @staticmethod
     def get_scan_method(method):
         """  
         Returns the scan method. 
@@ -325,6 +330,7 @@ class GetUtilities:
         if method == '2' or method == 'masscan':
             return 'masscan'
         
+    @staticmethod
     def get_loop_argument(argument):
         """  
         Returns the scan method. 
@@ -367,4 +373,4 @@ class GetUtilities:
         Returns:
             str: A comma-separated list of valid language options based on available language files.
         """
-        return  ', '.join([lang.replace('.json', '') for lang in os.listdir('./config/lang/')])
+        return ', '.join([lang.replace('.json', '') for lang in os.listdir('./config/lang/') if lang.endswith('.json')])

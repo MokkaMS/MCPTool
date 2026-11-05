@@ -84,7 +84,31 @@ class ArgumentChecker:
         Returns:
             dict: A dictionary mapping command indexes to command names.
         """
-        return {str(i).zfill(2): cmd for i, cmd in enumerate(['server', 'player', 'ipifo', 'dnslookup', 'shodan', 'websearch', 'subdomains', 'scan', 'listening', 'playerlogs', 'fakeproxy', 'login', 'pinlogin', 'sendcmd', 'kick', 'kickall', 'rconbrute', 'checker', 'waterfall', 'velocity', 'connect', 'rcon' 'config', 'language', 'discord'], start=0)}
+        return {
+            '00': 'help',
+            '01': 'server',
+            '02': 'uuid',
+            '03': 'ipinfo',
+            '04': 'dnslookup',
+            '05': 'shodan',
+            '06': 'websearch',
+            '07': 'subdomains',
+            '08': 'scan',
+            '09': 'listening',
+            '10': 'playerlogs',
+            '12': 'fakeproxy',
+            '13': 'login',
+            '14': 'pinlogin',
+            '15': 'sendcmd',
+            '16': 'kick',
+            '17': 'kickall',
+            '18': 'rconbrute',
+            '19': 'checker',
+            '20': 'waterfall',
+            '21': 'velocity',
+            '22': 'connect',
+            '23': 'rcon',
+        }
     
     @staticmethod
     def get_command_arguments(command):

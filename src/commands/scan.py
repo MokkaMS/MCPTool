@@ -6,7 +6,7 @@ from src.utilities.check_utilities import CheckUtilities
 
 def scan_command(target, port_range, scan_method, *args):
     """ 
-    Scan the specified ports of an IP address (which can also be an IP range)sion 'cogs.events.on_member_j
+    Scan the specified ports of an IP address (which can also be an IP range)
     and check if there are Minecraft servers hosted on those ports.
 
     Args:

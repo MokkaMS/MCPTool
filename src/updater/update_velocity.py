@@ -22,8 +22,10 @@ def update_velocity(url):
         velocity = requests.get(url)
         f.write(velocity.content)
 
-    os.remove('src/proxy/jar/fakeproxy/Velocity.jar')
-    os.remove('src/proxy/jar/velocity/Velocity.jar')
+    if os.path.exists('src/proxy/jar/fakeproxy/Velocity.jar'):
+        os.remove('src/proxy/jar/fakeproxy/Velocity.jar')
+    if os.path.exists('src/proxy/jar/velocity/Velocity.jar'):
+        os.remove('src/proxy/jar/velocity/Velocity.jar')
     shutil.copy('mcptool_temp/Velocity.jar', 'src/proxy/jar/fakeproxy/Velocity.jar')
     shutil.copy('mcptool_temp/Velocity.jar', 'src/proxy/jar/velocity/Velocity.jar')
     os.remove('mcptool_temp/Velocity.jar')

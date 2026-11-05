@@ -54,11 +54,11 @@
 
 ## 🔧 Installation 
 
-Follow the steps in the [installation guide](./docs/es/instalation.MD).
+Follow the steps in the [installation guide](./docs/en/instalation.MD).
 
 ## Commands
 
-See the command guide from this [link.](./docs/es/commands.MD).
+See the command guide from this [link.](./docs/en/commands.MD).
 
 ## 🕹 Usage
 
@@ -74,7 +74,7 @@ See the command guide from this [link.](./docs/es/commands.MD).
 
 [![Watch the video](https://img.youtube.com/vi/iGYlaFsikZE/maxresdefault.jpg)](https://youtu.be/T-D1KVIuvjA)
 
-## Licencia 
+## License 
 
 MIT License
 

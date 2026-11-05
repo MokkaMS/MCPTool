@@ -16,7 +16,7 @@ const spaces = process.argv[6];
 const proxyFile = process.argv[7]
 
 if (proxyFile) {
-    proxyTest = utils.getListOfPasswords(proxyFile)
+    let proxyTest = utils.getListOfPasswords(proxyFile)
 
     if (proxyTest === null) {
         utils.coloredText(`\n${getSpaces(spaces)}§f[§c#§f] §fThe entered proxy file (§c${proxyFile}§f) is not valid.`);
@@ -82,6 +82,7 @@ function createBot(proxy=null) {
         }
 
         else if (error.message.includes('unsupported protocol version:')) {
+            let protocol;
             try {
                 protocol = error.message.match(/\d+/)['input'].split(': ')[1]
                 

@@ -94,6 +94,9 @@ class MCPToolUpdater:
         latest_version = MCPToolUpdater.get_latest_version()
         
         # Compare the current and latest versions.
+        if latest_version is None:
+            return False
+
         if current_version != latest_version:
             return True
         
@@ -114,10 +117,13 @@ class MCPToolUpdater:
         """
 
         # Send an HTTP GET request to the remote configuration file URL.
-        response = requests.get('https://raw.githubusercontent.com/wrrulos/MCPTool/main/config/config.json')
+        try:
+            response = requests.get('https://raw.githubusercontent.com/wrrulos/MCPTool/main/config/config.json', timeout=5)
 
         # Parse the JSON response.
-        js = json.loads(response.text)
+            js = json.loads(response.text)
 
         # Extract and return the 'currentVersion' field from the JSON.
-        return js['currentVersion']
+            return js['currentVersion']
+        except Exception:
+            return None

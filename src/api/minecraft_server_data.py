@@ -397,6 +397,7 @@ class MinecraftServerData:
             output = MinecraftServerData.improve_bot_response(output)
             return output
         
+    @staticmethod
     def get_bot_response_sync(ip_port, protocol):
         """
         Retrieve the response from the bot checker script synchronously.

@@ -12,10 +12,15 @@ const username = utils.getUsername('src/utilities/usernames.txt')
 const host = process.argv[2];
 const port = process.argv[3];
 const version = process.argv[4];
-const proxyFile = process.argv[5]
+const proxyFile = process.argv[5];
+const spaces = 0;
+
+function getSpaces(s) {
+    return utils.getSpaces(s);
+}
 
 if (proxyFile) {
-    proxyTest = utils.getListOfPasswords(proxyFile)
+    let proxyTest = utils.getListOfPasswords(proxyFile);
 
     if (proxyTest === null) {
         utils.coloredText(`\n${getSpaces(spaces)}§f[§c#§f] §fThe entered proxy file (§c${proxyFile}§f) is not valid.`);
@@ -76,6 +81,7 @@ function createBot(proxy=null) {
         }
 
         else if (error.message.includes('unsupported protocol version:')) {
+            let protocol;
             try {
                 protocol = error.message.match(/\d+/)['input'].split(': ')[1]
                 

@@ -24,7 +24,7 @@ const proxyFile = process.argv[7];
 let bot;
 
 if (proxyFile) {
-    proxyTest = utils.getListOfPasswords(proxyFile)
+    let proxyTest = utils.getListOfPasswords(proxyFile)
 
     if (proxyTest === null) {
         utils.coloredText(`\n${getSpaces(spaces)}§f[§c#§f] §fThe entered proxy file (§c${proxyFile}§f) is not valid.`);
@@ -41,7 +41,7 @@ const moveList = ['forward', 'back', 'left', 'right', 'jump', 'sprint', 'sneak']
 const helpMessage = `
 ${getSpaces(spaces)}§f§lList of available commands (§cBETA§f§l):
 
-${getSpaces(spaces)}§a§l.help §7§l- §f§lListShow this help message.
+${getSpaces(spaces)}§a§l.help §7§l- §f§lShow this help message.
 ${getSpaces(spaces)}§a§l.move §b§l<movement> §7§l- §f§lExecute a movement of the bot. (forward, back, left, right, jump, sprint, sneak)
 ${getSpaces(spaces)}§a§l.file §b§l<file> §7§l- §f§lSend a list of messages/commands that get from the specified file
 ${getSpaces(spaces)}§a§l.players §7§l- §f§lShow information about all players connected to the server.
@@ -112,7 +112,7 @@ function enterCommand() {
                             })
                         }
                     } else {
-                        utils.coloredText(botFileNotFound);
+                        utils.coloredText(`\n${getSpaces(spaces)}§f§l[§c§l#§f§l] §cFile not found: ${words[1]}`);
                     }
                 });
 
@@ -133,7 +133,7 @@ function enterCommand() {
                 setTimeout(async() => {
                     for (let i=0; i < commandsToViewPlugins.length; i++) {
                         await new Promise(resolve => {
-                            let output = utils.tab(bot, commandsToViewPlugins[i], returnResults=true);
+                            let output = utils.tab(bot, commandsToViewPlugins[i], true);
 
                             output.then((outputList) => {
                                 if (outputList.length >= 1) {
@@ -295,6 +295,7 @@ function createBot(proxy=null) {
         }
 
         else if (error.message.includes('unsupported protocol version:')) {
+            let protocol;
             try {
                 protocol = error.message.match(/\d+/)['input'].split(': ')[1]
                 

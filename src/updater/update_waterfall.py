@@ -22,7 +22,8 @@ def update_waterfall(url):
         waterfall = requests.get(url)
         f.write(waterfall.content)
 
-    os.remove('src/proxy/jar/waterfall/waterfall.jar')
+    if os.path.exists('src/proxy/jar/waterfall/waterfall.jar'):
+        os.remove('src/proxy/jar/waterfall/waterfall.jar')
     shutil.copy('mcptool_temp/waterfall.jar', 'src/proxy/jar/waterfall/waterfall.jar')
     os.remove('mcptool_temp/waterfall.jar')
     shutil.rmtree('mcptool_temp')

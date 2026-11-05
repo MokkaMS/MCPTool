@@ -39,7 +39,9 @@ def dnslookup(domain, *args):
                     founds = True
 
                 log_data += '\n'
-                LogManager.write_log(log_file, 'dnslookup', log_data)
+
+        if founds:
+            LogManager.write_log(log_file, 'dnslookup', log_data)
 
         if not founds:
             # Display a message if no DNS records were found for the domain

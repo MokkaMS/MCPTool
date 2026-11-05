@@ -230,7 +230,7 @@ The **connect** command allows you to connect to a Minecraft server using the te
 
 To use this command you must enter:
 </br>
-`connect <ip:puerto> <user> <version>`
+`connect <ip:port> <user> <version>`
 
 ## Rcon
 The **rcon** command allows you to connect to a Minecraft server using rcon (only if enabled).

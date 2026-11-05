@@ -66,6 +66,7 @@ class CheckUtilities:
         
         return True
     
+    @staticmethod
     def check_ip_address(ip_address):
         """ 
         Check if the ip address is valid.
@@ -84,6 +85,7 @@ class CheckUtilities:
         except socket.error:
             return False
         
+    @staticmethod
     def check_scan_method(method):
         """ 
         Check the scanning method is valid.
@@ -102,6 +104,7 @@ class CheckUtilities:
 
         return False
     
+    @staticmethod
     def check_nmap():
         """
         Check if nmap is installed on the system.
@@ -115,6 +118,7 @@ class CheckUtilities:
         
         return True
     
+    @staticmethod
     def check_masscan():
         """
         Check if nmap is installed on the system.
@@ -128,6 +132,7 @@ class CheckUtilities:
 
         return True
         
+    @staticmethod
     def check_file_encoding(file):
         """ 
         Returns the encoding type of the file.
@@ -140,7 +145,7 @@ class CheckUtilities:
         """
 
         try:
-            with open(file, 'r+', encoding='utf8') as f:
+            with open(file, 'r', encoding='utf8') as f:
                 f.read()
 
             return 'utf8'
@@ -148,6 +153,7 @@ class CheckUtilities:
         except (UnicodeError, UnicodeDecodeError, UnicodeEncodeError, LookupError):
             return 'unicode_escape'
         
+    @staticmethod
     def check_loop_argument(argument):
         """ 
         Check if the loop argument is valid. 
@@ -166,6 +172,7 @@ class CheckUtilities:
 
         return False
     
+    @staticmethod
     def check_ip(ip_address):
         """ 
         Check if the ip address is valid.
@@ -184,6 +191,7 @@ class CheckUtilities:
         except socket.error:
             return False
     
+    @staticmethod
     def check_port(port):
         """ 
         Check if the entered port is valid.
@@ -196,7 +204,7 @@ class CheckUtilities:
         """
 
         try:
-            if int(port) <= 65535:
+            if 0 < int(port) <= 65535:
                 return True
 
             return False
@@ -204,6 +212,7 @@ class CheckUtilities:
         except ValueError:
             return False
         
+    @staticmethod
     def check_ip_port(ip_port):
         """
         Check if the entered IP and port are valid. (IP:PORT)

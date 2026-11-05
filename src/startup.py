@@ -47,7 +47,7 @@ class Startup():
 
         # Start the discord presence.
         if not CheckUtilities.check_termux():
-            subprocess.Popen(f'{sys.executable} src/presence/rich_presence.py 4.0.3', stdout=subprocess.PIPE, shell=True)
+            subprocess.Popen(f'{sys.executable} src/presence/rich_presence.py {JsonManager.get("currentVersion")}', stdout=subprocess.PIPE, shell=True)
 
         # Initialize a variable to store the API process.
         api_process = None
@@ -74,7 +74,7 @@ class Startup():
 
         try:
             presentation_banner_name = f'presentation' if not CheckUtilities.check_termux() else 'presentation_termux'
-            print_banner(presentation_banner_name, GetUtilities.get_translated_text(['banners', 'presentation', 'message1']), GetUtilities.get_translated_text(['banners', 'presentation', 'message1']), GetUtilities.get_translated_text('credits'))
+            print_banner(presentation_banner_name, GetUtilities.get_translated_text(['banners', 'presentation', 'message1']), GetUtilities.get_translated_text(['banners', 'presentation', 'message2']), GetUtilities.get_translated_text('credits'))
             time.sleep(2)
 
         except KeyboardInterrupt:
