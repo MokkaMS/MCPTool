@@ -254,20 +254,6 @@ class MinecraftServerData:
                     "&f&l(&500000000-0000-0000-0000-000000000000&f&l), ", '').replace(
                     "&f&l(&500000000-0000-0000-0000-000000000000&f&l)", '')
 
-            # Use regex to find UUID patterns in the player string.
-            re.findall(
-                r'[0-9a-z][0-9a-z][0-9a-z][0-9a-z][0-9a-z][0-9a-z]'
-                r'[0-9a-z][0-9a-z][0-9a-z][0-9a-z]'
-                r'[0-9a-z][0-9a-z][0-9a-z][0-9a-z]'
-                r'[0-9a-z][0-9a-z][0-9a-z][0-9a-z]'
-                r'[0-9a-z][0-9a-z][0-9a-z][0-9a-z]'
-                r'[0-9a-z][0-9a-z][0-9a-z][0-9a-z]'
-                r'[0-9a-z][0-9a-z][0-9a-z][0-9a-z]'
-                r'[0-9a-z][0-9a-z][0-9a-z][0-9a-z]'
-                r'[0-9a-z][0-9a-z][0-9a-z][0-9a-z]',
-                players
-            )
-
             return players
 
         return None

@@ -44,7 +44,7 @@ class CommandInput():
                         # Execute the command if it is recognized.
                         commands[command](*arguments[1:])
 
-                        if not CheckUtilities.check_termux() and True:
+                        if not CheckUtilities.check_termux():
                             # Update the last executed command for rich presence (if applicable).
                             RichPresenceUpdater.change_last_command(command)
 

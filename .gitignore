@@ -1,0 +1,21 @@
+# Dependencies & caches
+node_modules/
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+
+# Runtime logs & temp directories
+logs/
+mcptool_temp/
+*.log
+*.log.gz
+src/scan/outputs/*.txt
+src/presence/richPresence.status
+src/presence/richPresence.command
+
+# Auto-downloaded proxy JARs (keep custom plugin JARs under plugins/)
+src/proxy/jar/velocity/Velocity.jar
+src/proxy/jar/fakeproxy/Velocity.jar
+src/proxy/jar/waterfall/waterfall.jar

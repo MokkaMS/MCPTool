@@ -20,9 +20,7 @@ class Setup:
         'mineflayer',
         'minecraft-colors',
         'proxy-agent',
-        'readline',
-        'socks',
-        'telebit'
+        'socks'
     ]
 
     if os.name == 'nt':
