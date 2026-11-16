@@ -45,7 +45,7 @@ class LogManager:
         """
 
         timestamp = LogManager.get_timestamp()
-        start_message = 'MCPTool Logs\nwww.github.com/wrrulos/mcptool\n\n'
+        start_message = 'MCPTool Logs\nhttps://github.com/MokkaMS/MCPTool\n\n'
 
         if log_name in ['scan', 'shodan', 'websearch', 'listening', 'checker', 'fakeproxy']:
             log_folder = f'./logs/{log_name}/'

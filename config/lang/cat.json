@@ -70,7 +70,7 @@
             "invalidForwardingMode": "&f&lHas d'introduir un mode de reenviament vàlid! (&anone, legacy, bungeeguard, modern&f&l)"
         },
         "help": {
-            "message": "&f&lPer a més informació, visita la guia: &ahttps://github.com/wrrulos/MCPTool/guide"
+            "message": "&f&lPer a més informació, visita la guia: &ahttps://github.com/MokkaMS/MCPTool/blob/main/docs/en/commands.MD"
         },
         "server": {
             "argument1": "ip:port/domini",

@@ -131,7 +131,7 @@ class JavaStatusResponse(BaseStatusResponse):
             raw=raw,
             players=JavaStatusPlayers.build(raw["players"]),
             version=JavaStatusVersion.build(raw["version"]),
-            motd=Motd.parse(raw["description"], bedrock=False),
+            motd=Motd.parse(raw.get("description", ""), bedrock=False),
             icon=raw.get("favicon"),
             latency=latency,
         )
@@ -257,7 +257,7 @@ class JavaStatusPlayers(BaseStatusPlayers):
         :return: :class:`JavaStatusPlayers` object.
         """
         sample = None
-        if "sample" in raw:
+        if isinstance(raw.get("sample"), list):
             sample = [JavaStatusPlayer.build(player) for player in raw["sample"]]
         return cls(
             online=raw["online"],

@@ -39,7 +39,7 @@
 
 ## ⛏️ Supported minecraft versions
 
-* 📃 1.8.x-1.20.x
+* 📃 1.8.x-1.21.x & 26.x (Bots up to 26.1, Proxies & Server Status up to 26.2/26.3+)
 
 ## Available languages
 

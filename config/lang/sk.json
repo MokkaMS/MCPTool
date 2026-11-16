@@ -69,7 +69,7 @@
             "invalidForwardingMode": "&f&lMusíte zadať platný režim presmerovania! (&anone, legacy, bungeeguard, modern&f&l)"
         },
         "help": {
-            "message": "&f&lPre viac informácií navštívte sprievodcu: &ahttps://github.com/wrrulos/MCPTool/guide"
+            "message": "&f&lPre viac informácií navštívte sprievodcu: &ahttps://github.com/MokkaMS/MCPTool/blob/main/docs/en/commands.MD"
         },
         "server": {
             "argument1": "ip:port/domena",

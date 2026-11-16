@@ -130,16 +130,23 @@ class Motd:
                 parsed_motd.append(style_val)
 
         if (text := item.get("text")) is not None:
-            parsed_motd.extend(cls._parse_as_str(text, bedrock=bedrock))
+            parsed_motd.extend(cls._parse_as_str(str(text), bedrock=bedrock))
         if (translate := item.get("translate")) is not None:
-            parsed_motd.append(TranslationTag(translate))
+            parsed_motd.append(TranslationTag(str(translate)))
         parsed_motd.append(Formatting.RESET)
 
-        if "extra" in item:
+        if "extra" in item and isinstance(item["extra"], list):
             auto_add = list(filter(lambda e: type(e) is Formatting and e != Formatting.RESET, parsed_motd))
 
             for element in item["extra"]:
-                parsed_motd.extend(cls._parse_as_dict(element, auto_add=auto_add.copy()))
+                if isinstance(element, str):
+                    parsed_motd.extend(auto_add.copy())
+                    parsed_motd.extend(cls._parse_as_str(element, bedrock=bedrock))
+                    parsed_motd.append(Formatting.RESET)
+                elif isinstance(element, list):
+                    parsed_motd.extend(cls._parse_as_dict({"extra": element}, bedrock=bedrock, auto_add=auto_add.copy()))
+                elif isinstance(element, dict):
+                    parsed_motd.extend(cls._parse_as_dict(element, bedrock=bedrock, auto_add=auto_add.copy()))
 
         return parsed_motd
 

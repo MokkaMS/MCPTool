@@ -6,7 +6,7 @@ This document contains a list of answers to frequently asked questions.
 This is because you need to install the Python modules. You can do this through the **setup.py** script.
 
 ### Proxy servers are not working.
-If the proxy servers, whether Bungee, Velocity or FakeProxy, do not work, it is because a version of Java 17 or higher is required.
+If the proxy servers, whether Bungee, Velocity or FakeProxy, do not work, it is because a version of Java 21 or higher is required (Java 25+ for Velocity 4.x).
 
 ### The Scan or Masscan method does not work on Linux or termux.
 This is because masscan and the default nmap command require administrator (sudo) permissions.

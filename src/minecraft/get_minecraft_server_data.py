@@ -105,12 +105,17 @@ class GetMinecraftServerData:
             if response.status_code == 200 and response.json()['online']:
                 r_json = response.json()
 
-                motd = f'{r_json["motd"]["raw"][0]}\n{r_json["motd"]["raw"][1]}' if len(r_json["motd"]["raw"]) >= 2 else f'{r_json["motd"]["raw"][0]}'
-                version = f'{r_json["version"]}'
-                
+                motd_raw = (r_json.get("motd") or {}).get("raw") or []
+                motd = '\n'.join(motd_raw[:2]) if motd_raw else ''
+                version = f'{r_json.get("version", "")}'
+                protocol_ver = (r_json.get("protocol") or {}).get("version", "47")
+                players_data = r_json.get("players") or {}
+                player_sample = players_data.get("list")
+                info_raw = (r_json.get("info") or {}).get("raw")
+
                 if clean_data:
                     motd = GetMinecraftServerData.clean_data(motd)
-                    version =  GetMinecraftServerData.clean_data(version)
+                    version = GetMinecraftServerData.clean_data(version)
 
                 if bot:
                     return JavaServerData(
@@ -118,43 +123,46 @@ class GetMinecraftServerData:
                         f'{r_json["ip"]}:{r_json["port"]}',
                         motd,
                         version,
-                        r_json["protocol"]["version"] if 'protocol' in r_json else '47',
-                        r_json["players"]["online"] if 'players' in r_json else '0',
-                        r_json["players"]["max"] if 'players' in r_json else '0',
-                        GetUtilities.get_clean_list_player_names(r_json["players"]["list"]) if "list" in r_json["players"] else None,
-                        r_json["players"]["list"] if "list" in r_json["players"] else r_json["info"]["raw"] if "info" in r_json else None,
-                        r_json["icon"] if 'icon' in r_json else None,
+                        protocol_ver,
+                        players_data.get("online", '0'),
+                        players_data.get("max", '0'),
+                        GetUtilities.get_clean_list_player_names(player_sample) if player_sample else None,
+                        player_sample if player_sample is not None else info_raw,
+                        r_json.get("icon"),
                         None,
                         [],
                         None,
-                        MinecraftServerData.get_bot_response_sync(f'{r_json["ip"]}:{r_json["port"]}', f'{r_json["protocol"]["version"] if "protocol" in r_json else "47"} ')
+                        MinecraftServerData.get_bot_response_sync(f'{r_json["ip"]}:{r_json["port"]}', str(protocol_ver))
                     )
-                
+
                 else:
                     return JavaServerData(
                         'Java',
                         f'{r_json["ip"]}:{r_json["port"]}',
                         motd,
                         version,
-                        r_json["protocol"]["version"] if 'protocol' in r_json else '47',
-                        r_json["players"]["online"] if 'players' in r_json else '0',
-                        r_json["players"]["max"] if 'players' in r_json else '0',
-                        GetUtilities.get_clean_list_player_names(r_json["players"]["list"]) if "list" in r_json["players"] else None,
-                        r_json["players"]["list"] if "list" in r_json["players"] else r_json["info"]["raw"] if "info" in r_json else None,
-                        r_json["icon"] if 'icon' in r_json else None,
+                        protocol_ver,
+                        players_data.get("online", '0'),
+                        players_data.get("max", '0'),
+                        GetUtilities.get_clean_list_player_names(player_sample) if player_sample else None,
+                        player_sample if player_sample is not None else info_raw,
+                        r_json.get("icon"),
                         None,
                         [],
                         None,
                         None
                     )
-            
+
             else:
                 response = requests.get(f'https://api.mcsrvstat.us/bedrock/3/{server}')
 
                 if response.status_code == 200 and response.json()['online']:
                     r_json = response.json()
-                    motd = f'{r_json["motd"]["raw"][0]} {r_json["motd"]["raw"][1]}' if len(r_json["motd"]["raw"]) >= 2 else f'{r_json["motd"]["raw"][0]}'
-                    version = f'{r_json["version"]}'
+                    motd_raw = (r_json.get("motd") or {}).get("raw") or []
+                    motd = ' '.join(motd_raw[:2]) if motd_raw else ''
+                    version = f'{r_json.get("version", "")}'
+                    protocol_ver = (r_json.get("protocol") or {}).get("version", "0")
+                    players_data = r_json.get("players") or {}
 
                     if clean_data:
                         motd = GetMinecraftServerData.clean_data(motd)
@@ -165,12 +173,12 @@ class GetMinecraftServerData:
                         f'{r_json["ip"]}:{r_json["port"]}',
                         motd,
                         version,
-                        r_json["protocol"]["version"] if "protocol" in r_json and "version" in r_json["protocol"] else "0",
-                        r_json['software'] if 'software' in r_json else None,
-                        r_json["players"]["online"] if "players" in r_json and "online" in r_json["players"] else "0",
-                        r_json["players"]["max"] if "players" in r_json and "max" in r_json["players"] else "0",
-                        r_json['map']['raw'] if 'map' in r_json else None,
-                        r_json['gamemode'] if 'gamemode' in r_json else None,
+                        protocol_ver,
+                        r_json.get('software'),
+                        players_data.get("online", "0"),
+                        players_data.get("max", "0"),
+                        (r_json.get('map') or {}).get('raw'),
+                        r_json.get('gamemode'),
                         None,
                         None,
                     )
@@ -209,12 +217,17 @@ class GetMinecraftServerData:
             if response.status_code == 200 and response.json()['online']:
                 r_json = response.json()
                 
-                motd = r_json['motd']['raw']
-                version = r_json["version"]['name_raw']
-                
+                motd = (r_json.get('motd') or {}).get('raw') or ''
+                version_info = r_json.get("version") or {}
+                version = version_info.get('name_raw') or version_info.get('name_clean') or ''
+                protocol_ver = version_info.get("protocol", '47')
+                players_data = r_json.get("players") or {}
+                player_sample = players_data.get("list")
+                info_raw = (r_json.get("info") or {}).get("raw")
+
                 if clean_data:
                     motd = GetMinecraftServerData.clean_data(motd)
-                    version =  GetMinecraftServerData.clean_data(version)
+                    version = GetMinecraftServerData.clean_data(version)
 
                 if bot:
                     return JavaServerData(
@@ -222,44 +235,47 @@ class GetMinecraftServerData:
                         f'{r_json["ip_address"]}:{r_json["port"]}',
                         motd,
                         version,
-                        r_json["version"]["protocol"] if 'version' in r_json else '47',
-                        r_json["players"]["online"] if 'players' in r_json else '0',
-                        r_json["players"]["max"] if 'players' in r_json else '0',
-                        GetUtilities.get_clean_list_player_names(r_json["players"]["list"]) if "list" in r_json["players"] else None,
-                        r_json["players"]["list"] if "list" in r_json["players"] else r_json["info"]["raw"] if "info" in r_json else None,
-                        r_json["icon"] if 'icon' in r_json else None,
+                        protocol_ver,
+                        players_data.get("online", '0'),
+                        players_data.get("max", '0'),
+                        GetUtilities.get_clean_list_player_names(player_sample) if player_sample else None,
+                        player_sample if player_sample is not None else info_raw,
+                        r_json.get("icon"),
                         None,
                         [],
                         None,
-                        MinecraftServerData.get_bot_response_sync(f'{r_json["ip_address"]}:{r_json["port"]}', f'{r_json["version"]["protocol"] if "version" in r_json else "47"} ')
+                        MinecraftServerData.get_bot_response_sync(f'{r_json["ip_address"]}:{r_json["port"]}', str(protocol_ver))
                     )
-                
+
                 else:
                     return JavaServerData(
                         'Java',
                         f'{r_json["ip_address"]}:{r_json["port"]}',
                         motd,
                         version,
-                        r_json["version"]["protocol"] if 'version' in r_json else '47',
-                        r_json["players"]["online"] if 'players' in r_json else '0',
-                        r_json["players"]["max"] if 'players' in r_json else '0',
-                        GetUtilities.get_clean_list_player_names(r_json["players"]["list"]) if "list" in r_json["players"] else None,
-                        r_json["players"]["list"] if "list" in r_json["players"] else r_json["info"]["raw"] if "info" in r_json else None,
-                        r_json["icon"] if 'icon' in r_json else None,
+                        protocol_ver,
+                        players_data.get("online", '0'),
+                        players_data.get("max", '0'),
+                        GetUtilities.get_clean_list_player_names(player_sample) if player_sample else None,
+                        player_sample if player_sample is not None else info_raw,
+                        r_json.get("icon"),
                         None,
                         [],
                         None,
                         None
                     )
-            
+
             else:
                 response = requests.get(f'https://api.mcstatus.io/v2/status/bedrock/{server}')
 
                 if response.status_code == 200 and response.json()['online']:
                     r_json = response.json()
-                
-                    motd = r_json['motd']['raw']
-                    version = r_json["version"]['name']
+
+                    motd = (r_json.get('motd') or {}).get('raw') or ''
+                    version_info = r_json.get("version") or {}
+                    version = version_info.get('name') or ''
+                    protocol_ver = version_info.get("protocol", '47')
+                    players_data = r_json.get("players") or {}
 
                     if clean_data:
                         motd = GetMinecraftServerData.clean_data(motd)
@@ -270,12 +286,12 @@ class GetMinecraftServerData:
                         f'{r_json["ip_address"]}:{r_json["port"]}',
                         motd,
                         version,
-                        r_json["version"]["protocol"] if 'version' in r_json else '47',
-                        r_json['software'] if 'software' in r_json else None,
-                        r_json["players"]["online"] if "players" in r_json and "online" in r_json["players"] else "0",
-                        r_json["players"]["max"] if "players" in r_json and "max" in r_json["players"] else "0",
-                        r_json['map']['raw'] if 'map' in r_json else None,
-                        r_json['gamemode'] if 'gamemode' in r_json else None,
+                        protocol_ver,
+                        r_json.get('software'),
+                        players_data.get("online", "0"),
+                        players_data.get("max", "0"),
+                        (r_json.get('map') or {}).get('raw'),
+                        r_json.get('gamemode'),
                         None,
                         None,
                     )

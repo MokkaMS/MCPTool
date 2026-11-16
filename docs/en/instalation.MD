@@ -4,7 +4,7 @@
 
 * Python 3
 * NodeJS (Recommended)
-* Java 17 or higher. (Recommended)
+* Java 21 or higher. (Recommended; Java 25+ for Velocity 4.x)
 * Nmap (Optional)
 *Masscan (Optional)
 * Ngrok (Optional)

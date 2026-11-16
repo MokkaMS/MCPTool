@@ -27,8 +27,8 @@
         "fakeProxyPort": "33330",
         "fakeProxyUpdateDelay": "2",
         "fakeProxyCommandPrefix": ".",
-        "waterfallVersion": "https://api.papermc.io/v2/projects/waterfall/versions/1.20/builds/549/downloads/waterfall-1.20-549.jar",
-        "velocityVersion": "https://api.papermc.io/v2/projects/velocity/versions/3.2.0-SNAPSHOT/builds/294/downloads/velocity-3.2.0-SNAPSHOT-294.jar"
+        "waterfallVersion": "https://fill-data.papermc.io/v1/objects/5eda8bfd0691e5088701f87020c68964299586df0faba289a634122d282d598c/waterfall-1.21-615.jar",
+        "velocityVersion": "https://fill-data.papermc.io/v1/objects/b4e3164df5377346854dc6cb9e6a78022b1946ff69e89676313f5f6f1c6f0fb3/velocity-3.5.1-615.jar"
     },
     "logs": true,
     "currentVersion": "4.0.4"

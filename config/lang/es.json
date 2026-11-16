@@ -70,7 +70,7 @@
             "invalidForwardingMode": "&f&lDebe ingresar un modo de reenvío válido! (&anone, legacy, bungeeguard, modern&f&l)"
         },
         "help": {
-            "message": "&f&lPara más información visita la guía: &ahttps://github.com/wrrulos/MCPTool/guide"
+            "message": "&f&lPara más información visita la guía: &ahttps://github.com/MokkaMS/MCPTool/blob/main/docs/en/commands.MD"
         },
         "server": {
             "argument1": "ip:puerto/dominio",

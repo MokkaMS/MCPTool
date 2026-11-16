@@ -1,55 +1,201 @@
 const fs = require('fs');
 const mccolors = require('minecraft-colors');
+const mineflayer = require('mineflayer');
+const minecraftData = require('minecraft-data');
+const nbt = require('prismarine-nbt');
+const { ProxyAgent } = require('proxy-agent');
+const socks = require('socks').SocksClient;
+
+
+function extractTextFromComponent(node) {
+    if (node === null || node === undefined) {
+        return '';
+    }
+
+    if (typeof node === 'string' || typeof node === 'number' || typeof node === 'boolean') {
+        return String(node);
+    }
+
+    if (Array.isArray(node)) {
+        return node.map(extractTextFromComponent).join('');
+    }
+
+    if (typeof node === 'object') {
+        // Unwrap prismarine-nbt anonymousNbt / NBT compound structures (1.20.3+)
+        if (typeof node.type === 'string' && 'value' in node) {
+            try {
+                return extractTextFromComponent(nbt.simplify(node));
+            } catch (_) {}
+        }
+
+        let text = '';
+
+        if (node.text !== undefined && node.text !== null) {
+            text += String(node.text);
+        } else if (node[''] !== undefined && node[''] !== null) {
+            text += String(node['']);
+        }
+
+        if (node.translate !== undefined && node.translate !== null) {
+            text += String(node.translate);
+        }
+
+        if (node.extra !== undefined && node.extra !== null) {
+            text += extractTextFromComponent(node.extra);
+        }
+
+        if (node.with !== undefined && node.with !== null) {
+            text += extractTextFromComponent(node.with);
+        }
+
+        return text;
+    }
+
+    return '';
+}
 
 
 function getTextFromJSON(json) {
-  let obj = null;
-
-  try {
-    obj = JSON.parse(json);
-  } catch (_) {
-    return null;
-  }
-
-  let text = '';
-
-  function processExtra(extra) {
-      if (Array.isArray(extra)) {
-          extra.forEach((item) => {
-
-          if (item.text) {
-              text += item.text;
-          }
-
-          if (item.translate) {
-              text += item.translate;
-          }
-
-          if (item.extra) {
-              processExtra(item.extra);
-          }
-
-          if (item.hasOwnProperty('with')) {
-              text += getTextFromJSON(JSON.stringify(item.with));
-          }
-      });
-
-      } else if (extra.text) {
-          text = extra.text;
-      } else if (extra.translate) {
-          text = extra.translate;
-      }
+    if (json === null || json === undefined) {
+        return '';
     }
 
-    if (Array.isArray(obj.extra)) {
-        processExtra(obj.extra);
-    } else if (obj.text) {
-        text = obj.text;
-    } else if (obj.translate) {
-        text = obj.translate;
+    if (typeof json === 'object') {
+        return extractTextFromComponent(json).trim();
     }
 
-    return text.trim();
+    if (typeof json !== 'string') {
+        return String(json).trim();
+    }
+
+    try {
+        const obj = JSON.parse(json);
+        return extractTextFromComponent(obj).trim();
+    } catch (_) {
+        return json.trim();
+    }
+}
+
+function formatKickReason(reason) {
+    const message = getTextFromJSON(reason);
+    if (message.length > 0) {
+        return message;
+    }
+
+    if (typeof reason === 'string') {
+        return reason;
+    }
+
+    try {
+        return JSON.stringify(reason);
+    } catch (_) {
+        return String(reason);
+    }
+}
+
+function normalizeVersion(version) {
+    if (version === false || version === undefined || version === null) {
+        return false;
+    }
+
+    const str = String(version).trim();
+    if (!str || str.toLowerCase() === 'auto' || str.toLowerCase() === 'false') {
+        return false;
+    }
+
+    if (minecraftData(str)) {
+        return str;
+    }
+
+    if (/^\d+\.\d+\.0$/.test(str)) {
+        const withoutPatch = str.slice(0, -2);
+        if (minecraftData(withoutPatch)) {
+            return withoutPatch;
+        }
+    }
+
+    return str;
+}
+
+function createBotInstance({ host, port, username, version, proxy = null, connectTimeout = null, onProxyError = null }) {
+    const parsedPort = parseInt(port, 10);
+    const resolvedVersion = normalizeVersion(version);
+
+    if (proxy) {
+        const socksOptions = {
+            proxy: {
+                host: proxy[0],
+                port: proxy[1],
+                type: 5
+            },
+            command: 'connect',
+            destination: {
+                host: host,
+                port: parsedPort
+            }
+        };
+
+        if (connectTimeout != null) {
+            socksOptions.timeout = connectTimeout;
+        }
+
+        return mineflayer.createBot({
+            connect: client => {
+                socks.createConnection(socksOptions, (err, info) => {
+                    if (err) {
+                        if (onProxyError) {
+                            onProxyError(err);
+                        }
+                        return;
+                    }
+
+                    client.setSocket(info.socket);
+                    client.emit('connect');
+                });
+            },
+            agent: new ProxyAgent({ protocol: 'socks5:', host: proxy[0], port: proxy[1] }),
+            username: username,
+            fakeHost: host,
+            version: resolvedVersion,
+            hideErrors: true
+        });
+    }
+
+    return mineflayer.createBot({
+        host: host,
+        fakeHost: host,
+        port: parsedPort,
+        username: username,
+        version: resolvedVersion,
+        hideErrors: true
+    });
+}
+
+function handleBotCreationError(error, spaces) {
+    const msg = error && error.message ? error.message : String(error);
+
+    if (msg.includes('is not supported')) {
+        const versionMatch = msg.match(/\d+\.\d+(?:\.\d+)?/) || msg.match(/'([^']+)'/);
+        const versionText = versionMatch ? (versionMatch[1] || versionMatch[0]) : 'unknown';
+        coloredText(`\n${getSpaces(spaces)}§f§l[§c§l#§f§l] §cIncompatible Minecraft version: Version §c§l${versionText} §cis not currently supported.`);
+    } else if (msg.includes('unsupported protocol version:') || msg.includes('unsupported/unknown protocol version:')) {
+        let protocol = null;
+        try {
+            const splitPart = msg.split(': ')[1];
+            protocol = splitPart ? splitPart.split(',')[0].trim() : null;
+        } catch (_) {
+            const numMatch = msg.match(/\d+/);
+            protocol = numMatch ? numMatch[0] : null;
+        }
+
+        if (protocol != null && protocol !== '') {
+            coloredText(`\n${getSpaces(spaces)}§f§l[§c§l#§f§l] §cIncompatible Minecraft version: Protocol §c§l${protocol} §cis not supported`);
+        } else {
+            coloredText(`\n${getSpaces(spaces)}§f§l[§c§l#§f§l] §cIncompatible Minecraft version: Protocol is not supported`);
+        }
+    } else {
+        coloredText(`\n${getSpaces(spaces)}§f§l[§c§l#§f§l] §4Error`);
+    }
 }
 
 function coloredText(text) {
@@ -161,22 +307,31 @@ async function tab(bot, text, returnResults=false) {
     try {
         let matches = await bot.tabComplete(text);
 
-        if (typeof (matches) === 'object') {
-            matches = matches.map(obj => obj.match);
+        if (Array.isArray(matches)) {
+            matches = matches.map(obj => (typeof obj === 'object' && obj !== null) ? obj.match : obj).filter(Boolean);
+        } else {
+            matches = [];
         }
         
         if (returnResults === true) {
             return matches;
         }
 
-        matches = matches.join(', ');
-        coloredText(matches);
+        coloredText(matches.join(', '));
         
-    } catch (err) {}
+    } catch (err) {
+        if (returnResults === true) {
+            return [];
+        }
+    }
 }
 
 module.exports = {
     getTextFromJSON: getTextFromJSON,
+    formatKickReason: formatKickReason,
+    normalizeVersion: normalizeVersion,
+    createBotInstance: createBotInstance,
+    handleBotCreationError: handleBotCreationError,
     getMessages: getMessages,
     coloredText: coloredText,
     checkLogsDirectory: checkLogsDirectory,

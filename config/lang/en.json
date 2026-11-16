@@ -70,7 +70,7 @@
             "invalidForwardingMode": "&f&lYou must enter a valid forwarding mode! (&anone, legacy, bungeeguard, modern&f&l)"
         },
         "help": {
-            "message": "&f&lFor more information, visit the guide: &ahttps://github.com/wrrulos/MCPTool/guide"
+            "message": "&f&lFor more information, visit the guide: &ahttps://github.com/MokkaMS/MCPTool/blob/main/docs/en/commands.MD"
         },
         "server": {
             "argument1": "ip:port/domain",

@@ -1,5 +1,4 @@
 const debug = require('debug')('prismarine-auth')
-const fetch = require('node-fetch')
 const crypto = require('crypto')
 
 const { Endpoints, fetchOptions } = require('../common/Constants')
@@ -66,7 +65,7 @@ class MinecraftJavaTokenManager {
 
   async getAccessToken (xsts) {
     debug('[mc] authing to minecraft', xsts)
-    const MineServicesResponse = await fetch(Endpoints.MinecraftServicesLogWithXbox, {
+    const MineServicesResponse = await fetch(Endpoints.minecraftJava.loginWithXbox, {
       method: 'post',
       ...fetchOptions,
       body: JSON.stringify({ identityToken: `XBL3.0 x=${xsts.userHash};${xsts.XSTSToken}` })
@@ -80,7 +79,7 @@ class MinecraftJavaTokenManager {
   async fetchProfile (accessToken) {
     debug(`[mc] fetching minecraft profile with ${accessToken.slice(0, 16)}`)
     const headers = { ...fetchOptions.headers, Authorization: `Bearer ${accessToken}` }
-    const profile = await fetch(Endpoints.MinecraftServicesProfile, { headers })
+    const profile = await fetch(Endpoints.minecraftJava.profile, { headers })
       .then(checkStatus)
     debug(`[mc] got profile response: ${profile}`)
     return profile
@@ -94,7 +93,7 @@ class MinecraftJavaTokenManager {
   async fetchEntitlements (accessToken) {
     debug(`[mc] fetching entitlements with ${accessToken.slice(0, 16)}`)
     const headers = { ...fetchOptions.headers, Authorization: `Bearer ${accessToken}` }
-    const entitlements = await fetch(Endpoints.MinecraftServicesEntitlement, { headers }).then(checkStatus)
+    const entitlements = await fetch(Endpoints.minecraftJava.entitlements + `?requestId=${crypto.randomUUID()}`, { headers }).then(checkStatus)
     debug(`[mc] got entitlement response: ${entitlements}`)
     return entitlements
   }
@@ -102,7 +101,7 @@ class MinecraftJavaTokenManager {
   async fetchCertificates (accessToken) {
     debug(`[mc] fetching key-pair with ${accessToken.slice(0, 16)}`)
     const headers = { ...fetchOptions.headers, Authorization: `Bearer ${accessToken}` }
-    const cert = await fetch(Endpoints.MinecraftServicesCertificate, { method: 'post', headers }).then(checkStatus)
+    const cert = await fetch(Endpoints.minecraftJava.certificates, { method: 'post', headers }).then(checkStatus)
     debug('[mc] got key-pair')
     const profileKeys = {
       publicPEM: cert.keyPair.publicKey,
@@ -177,7 +176,7 @@ class MinecraftJavaTokenManager {
     }
 
     debug('[mc] reporting player with payload', body)
-    const reportResponse = await fetch(Endpoints.MinecraftServicesReport, { method: 'post', headers, body }).then(checkStatus)
+    const reportResponse = await fetch(Endpoints.minecraftJava.reportPlayer, { method: 'post', headers, body }).then(checkStatus)
     debug('[mc] server response for report', reportResponse)
     return true
   }

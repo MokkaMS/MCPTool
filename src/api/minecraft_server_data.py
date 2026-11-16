@@ -75,14 +75,14 @@ class MinecraftServerData:
 
         if response is None:
             return None
-        
+
         # Handle Java server response.
         if isinstance(response, JavaStatusResponse):
             server = server if ':' in server else f'{server}:25565'
 
             if bot:
                 if JsonManager.get(['minecraftServerOptions', 'checkServerLoginWithABot']):
-                    # Retrieve bot response for Bedrock server.
+                    # Retrieve bot response for Java server.
                     bot_response = await MinecraftServerData.get_bot_response(server, response.version.protocol)
 
                 else:
@@ -103,6 +103,7 @@ class MinecraftServerData:
                 motd = response.description
                 version = response.version.name
 
+            modinfo = response.raw.get('modinfo') or {}
             return JavaServerData(
                 'Java',
                 server,
@@ -114,12 +115,12 @@ class MinecraftServerData:
                 await MinecraftServerData.get_clean_list_player_names(response.players.sample),
                 response.players.sample,
                 response.favicon,
-                response.raw.get('modinfo', {}).get('type'),
-                response.raw.get('modinfo', {}).get('modList', []),
+                modinfo.get('type'),
+                modinfo.get('modList', []),
                 response.latency,
                 bot_response
             )
-        
+
         # Handle Bedrock server response.
         elif isinstance(response, BedrockStatusResponse):
             server = server if ':' in server else f'{server}:19132'
@@ -131,7 +132,7 @@ class MinecraftServerData:
 
             else:
                 bot_response = None"""
-            
+
             bot_response = '&cNot compatible with Bedrock'
 
             if type(response.motd) != str:
@@ -143,7 +144,7 @@ class MinecraftServerData:
 
             else:
                 motd = response.motd
-            
+
             return BedrockServerData(
                 'Bedrock',
                 server,
@@ -158,10 +159,10 @@ class MinecraftServerData:
                 response.latency,
                 bot_response
             )
-        
+
         else:
             return None
-        
+
     @staticmethod
     async def get_minecraft_server_port(server):
         """
@@ -177,14 +178,14 @@ class MinecraftServerData:
         Returns:
             int or None: The port number of the Minecraft server, or None if not found.
         """
-        
+
         # Construct the SRV DNS query hostname using the Minecraft format.
         hostname = f'_minecraft._tcp.{server}'
 
         try:
             # Use the dns.resolver to query SRV DNS records for the server.
             answers = dns.resolver.resolve(hostname, 'SRV')
-            
+
             # Extract the target (server) and port information from the SRV DNS record.
             server = answers[0].target
             port = answers[0].port
@@ -194,7 +195,7 @@ class MinecraftServerData:
         except (dns.resolver.NXDOMAIN, dns.resolver.NoAnswer, dns.resolver.NoNameservers, dns.exception.Timeout):
             # Handle exceptions and return None if the SRV DNS record is not found.
             return None
-        
+
     @staticmethod
     async def get_minecraft_ip_address(server):
         """
@@ -210,15 +211,15 @@ class MinecraftServerData:
         Returns:
             str or None: The first IPv4 address of the Minecraft server, or None if not found.
         """
-        
+
         # Use the get_dns_records method to query 'A' records for the server.
         ip_addresses = await MinecraftServerData.get_dns_records(server, 'A')
-        
+
         # Check if at least one IP address is found.
         if ip_addresses is not None and len(ip_addresses) >= 1:
             # Return the first IP address found.
             return ip_addresses[0]
-        
+
     @staticmethod
     async def get_clean_list_player_names(player_list):
         """
@@ -270,7 +271,7 @@ class MinecraftServerData:
             return players
 
         return None
-    
+
     @staticmethod
     async def get_player_uuid(username):
         """
@@ -306,7 +307,6 @@ class MinecraftServerData:
             offline_uuid = str(uuid.UUID(bytes=hashlib.md5(bytes(f'OfflinePlayer:{username}', 'utf-8')).digest()[:16], version=3))
             return None, offline_uuid
 
-        
     @staticmethod
     async def get_uuid_color(username, uuid):
         """
@@ -326,15 +326,51 @@ class MinecraftServerData:
         # Check if the provided UUID matches the online UUID.
         if uuid == online_uuid:
             return '&a'  # Premium UUID color
-            
+
         # Check if the provided UUID matches the offline UUID.
         elif uuid == offline_uuid:
             return '&7'  # Non-premium UUID color
-            
+
         # If neither the online nor offline UUIDs match, consider it modified.
         else:
             return '&5'  # Modified UUID color
-        
+
+    @staticmethod
+    def _build_checker_command(ip_port, protocol):
+        """Build the node command for checker.js or return None if ip_port is invalid."""
+        try:
+            ip, port = str(ip_port).strip().split(':')
+        except ValueError:
+            return None
+
+        node_cmd = JsonManager.get(["minecraftServerOptions", "nodeCommand"]) or 'node'
+        protocol_arg = str(protocol).strip() if protocol is not None else '47'
+        command = f'{node_cmd} src/scripts/checker.js {ip} {port} {protocol_arg}'
+
+        if JsonManager.get(["minecraftServerOptions", "proxy"]):
+            command += f' {JsonManager.get(["minecraftServerOptions", "proxyFileForTheBot"])}'
+
+        return command
+
+    @staticmethod
+    def _parse_checker_output(stdout, stderr):
+        """Parse checker.js output, prioritizing stdout over non-fatal stderr warnings."""
+        stdout_text = stdout.decode('utf-8', errors='replace') if stdout else ''
+        stderr_text = stderr.decode('utf-8', errors='replace') if stderr else ''
+
+        if stdout_text.strip():
+            output = stdout_text.replace('\r', '').replace('\n', '')
+            output = re.sub(' +', ' ', output)
+            return MinecraftServerData.improve_bot_response(output)
+
+        if stderr_text:
+            if 'Error: Cannot find module' in stderr_text:
+                return 'Error (Missing NodeJS modules!)'
+            elif 'not found' in stderr_text or '"node"' in stderr_text:
+                return 'Error (NodeJS is not installed)'
+
+        return 'Error'
+
     @staticmethod
     async def get_bot_response(ip_port, protocol):
         """
@@ -348,55 +384,19 @@ class MinecraftServerData:
             str: The response from the bot checker script.
         """
 
-        # Split the provided 'ip_port' into separate IP and port components.
-        try:
-            ip, port = ip_port.split(':')
-
-        except ValueError:
+        command = MinecraftServerData._build_checker_command(ip_port, protocol)
+        if command is None:
             return 'Error'
 
-        # Construct the command to run the bot checker script.
-        if JsonManager.get(["minecraftServerOptions", "proxy"]):
-            command = f'node src/scripts/checker.js {ip} {port} {protocol} {JsonManager.get(["minecraftServerOptions", "proxyFileForTheBot"])}'
-
-        else:
-            command = f'node src/scripts/checker.js {ip} {port} {protocol}'
-
-        proxy_file = None  # You may specify a proxy file here if needed.
-
-        if proxy_file is not None:
-            command += f' {proxy_file}'
-
-        # Create a subprocess to execute the bot checker script.
         process = await asyncio.create_subprocess_shell(
             command,
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE
         )
 
-        # Await the completion of the subprocess and capture its output.
         stdout, stderr = await process.communicate()
-            
-        if stderr:
-            # Handle any potential errors from the subprocess.
-            error_message = stderr.decode('utf-8')
+        return MinecraftServerData._parse_checker_output(stdout, stderr)
 
-            if 'Error: Cannot find module' in error_message:
-                return 'Error (Missing NodeJS modules!)'
-            
-            elif 'not found' in error_message or '"node"' in error_message:
-                return 'Error (NodeJS is not installed)'
-            
-            else:
-                return 'Error'
-            
-        else:
-            # Return the stdout (script output) as the bot response.
-            output = stdout.decode('utf-8').replace('\n', '')
-            output = re.sub(' +', ' ', output)
-            output = MinecraftServerData.improve_bot_response(output)
-            return output
-        
     @staticmethod
     def get_bot_response_sync(ip_port, protocol):
         """
@@ -410,26 +410,10 @@ class MinecraftServerData:
             str: The response from the bot checker script.
         """
 
-        # Split the provided 'ip_port' into separate IP and port components.
-        try:
-            ip, port = ip_port.split(':')
-
-        except ValueError:
+        command = MinecraftServerData._build_checker_command(ip_port, protocol)
+        if command is None:
             return 'Error'
 
-        # Construct the command to run the bot checker script.
-        if JsonManager.get(["minecraftServerOptions", "proxy"]):
-            command = f'node src/scripts/checker.js {ip} {port} {protocol} {JsonManager.get(["minecraftServerOptions", "proxyFileForTheBot"])}'
-
-        else:
-            command = f'node src/scripts/checker.js {ip} {port} {protocol}'
-
-        proxy_file = None  # You may specify a proxy file here if needed.
-
-        if proxy_file is not None:
-            command += f' {proxy_file}'
-
-        # Create a subprocess to execute the bot checker script.
         process = subprocess.Popen(
             command,
             shell=True,
@@ -437,29 +421,9 @@ class MinecraftServerData:
             stderr=subprocess.PIPE
         )
 
-        # Capture the output and errors from the subprocess.
         stdout, stderr = process.communicate()
+        return MinecraftServerData._parse_checker_output(stdout, stderr)
 
-        if stderr:
-            # Handle any potential errors from the subprocess.
-            error_message = stderr.decode('utf-8')
-
-            if 'Error: Cannot find module' in error_message:
-                return 'Error (Missing NodeJS modules!)'
-            
-            elif 'not found' in error_message or '"node"' in error_message:
-                return 'Error (NodeJS is not installed)'
-            
-            else:
-                return 'Error'
-
-        else:
-            # Return the stdout (script output) as the bot response.
-            output = stdout.decode('utf-8').replace('\n', '')
-            output = re.sub(' +', ' ', output)
-            output = MinecraftServerData.improve_bot_response(output)
-            return output
-        
     @staticmethod
     async def get_dns_records(hostname, record_type='All'):
         """
@@ -476,7 +440,7 @@ class MinecraftServerData:
         try:
             # Initialize an empty list to store DNS records.
             records_list = []
-            
+
             # Use the dns.resolver to query DNS records for the specified hostname and type.
             records = dns.resolver.resolve(hostname, record_type)
 
@@ -489,7 +453,7 @@ class MinecraftServerData:
         except (dns.resolver.NXDOMAIN, dns.resolver.NoAnswer, dns.resolver.NoNameservers, dns.exception.Timeout):
             # Handle exceptions and return None if an error occurs.
             return None
-        
+
     @staticmethod
     def improve_bot_response(bot_response):
         """
@@ -525,7 +489,7 @@ class MinecraftServerData:
         # Iterate through the messages and replace them in the bot_response.
         for message, replacement in messages.items():
             bot_response = bot_response.replace(message, replacement)
-        
+
         return bot_response
 
     @staticmethod
@@ -547,5 +511,5 @@ class MinecraftServerData:
             # Replace multiple spaces with a single space.
             data = re.sub(' +', ' ', data)
             return data
-        
+
         return None
