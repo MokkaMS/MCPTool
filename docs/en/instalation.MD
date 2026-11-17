@@ -11,7 +11,22 @@
 
 </br>
 
-# Automatic installation
+# Windows One-Click Installer & Launcher
+
+Double-click **`MCPTool.bat`** in the project root. On first launch it automatically:
+* Installs **Python 3** and **Node.js LTS** (if missing) via `winget` or official installers
+* Creates an isolated `.venv` and installs `requirements.txt` and `package.json` dependencies
+* Optionally offers to install **Java 21** (for proxies & QuboScanner) and **Nmap**
+* Launches **MCPTool** immediately (subsequent launches skip setup and start in under a second)
+
+Useful options from Command Prompt / PowerShell:
+* `MCPTool.bat --check` — Verify installed runtimes and dependencies
+* `MCPTool.bat --install-only` — Install/sync dependencies without launching
+* `MCPTool.bat --install-all` — Auto-install optional tools (Java 21, Nmap) without prompting
+* `MCPTool.bat --shortcut` — Create a Desktop shortcut for `MCPTool.bat`
+* `MCPTool.bat --reinstall` — Recreate `.venv` and reinstall Python & Node dependencies
+
+# Automatic installation (Linux / Termux / Manual)
 Run **python setup.py**. (Note that the python variable may vary depending on your system)
 
 ### DEBUG mode

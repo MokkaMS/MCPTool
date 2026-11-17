@@ -23,7 +23,7 @@ class ArgumentChecker:
         if len(command) == 2:
             command = commands.get(command, command)
 
-        if command in ['cls', 'clear', 'discord']:
+        if command in ['cls', 'clear', 'discord', 'exit', 'quit']:
             return True
 
         if command in ['language', 'server', 'uuid', 'ipinfo', 'dnslookup', 'websearch', 'listening', 'playerlogs', 'checker', 'waterfall', 'shodan']:

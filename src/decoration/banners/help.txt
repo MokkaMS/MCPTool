@@ -12,4 +12,4 @@
                                                     ⠀               &f&l⢰⣶⣾⣿⣿⣿⡏⠉⠀⠀⠀⠀⠀⠀⠀&b⠀⠀⠈⠉⠁⠀⠀
     &c&l• &6&lUtility commands                                            &f&l⢰⣶⡎⠉⢹⣿⡏⠉⠁⠀⠀
       &6&l> &f&lchecker waterfall velocity connect                        &f&l⢸⣿⣷⣶⡎⠉⠁⠀⠀
-      &f&lrcon                                                         &f&l⠉⠉⠉⠁⠀⠀⠀⠀⠀
+      &f&lrcon exit                                                    &f&l⠉⠉⠉⠁⠀⠀⠀⠀⠀

@@ -54,7 +54,8 @@
 
 ## 🔧 Installation 
 
-Follow the steps in the [installation guide](./docs/en/instalation.MD).
+* **Windows (One-Click):** Double-click **`MCPTool.bat`** to automatically install missing dependencies and launch MCPTool.
+* **Linux / Termux / Manual:** Follow the steps in the [installation guide](./docs/en/instalation.MD).
 
 ## Commands
 
@@ -62,7 +63,8 @@ See the command guide from this [link.](./docs/en/commands.MD).
 
 ## 🕹 Usage
 
-**python3 main.py**
+* **Windows:** Double-click **`MCPTool.bat`**
+* **Linux / Termux:** **`python3 main.py`**
 
 ## 📸 Screenshots
 

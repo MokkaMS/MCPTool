@@ -1,5 +1,6 @@
 from src.commands.clear import clear_command
 from src.commands.discord import discord_command
+from src.commands.exit import exit_command
 from src.commands.language import language_command
 from src.commands.help import help_command
 from src.commands.server import server_command
@@ -52,4 +53,5 @@ commands = {
     **dict.fromkeys(['21', 'velocity'], velocity_command),
     **dict.fromkeys(['22', 'connect'], connect_command),
     **dict.fromkeys(['23', 'rcon'], rcon_command),
+    **dict.fromkeys(['exit', 'quit'], exit_command),
 }

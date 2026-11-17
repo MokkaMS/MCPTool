@@ -51,8 +51,18 @@ class CommandInput():
             except (RuntimeError, EOFError):
                 pass
 
-            except KeyboardInterrupt:
-                if api_process is not None:
-                    api_process.terminate()
-                    
-                sys.exit()
+            except (KeyboardInterrupt, SystemExit):
+                CommandInput._shutdown(api_process)
+                sys.exit(0)
+
+    @staticmethod
+    def _shutdown(api_process):
+        """Terminate background processes started by MCPTool before exiting."""
+        if api_process is not None:
+            api_process.terminate()
+
+        if not CheckUtilities.check_termux():
+            try:
+                RichPresenceUpdater.change_rp_status('False')
+            except OSError:
+                pass
