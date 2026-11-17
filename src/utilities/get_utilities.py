@@ -25,8 +25,7 @@ class GetUtilities:
         Returns:
             spaces (str): The appropriate spacing based on the execution environment.
         """
-         
-        #if check_termux():
+
         if CheckUtilities.check_termux():
             # Set the spacing to a single space for Termux
             spaces = '  '
@@ -36,7 +35,6 @@ class GetUtilities:
             spaces = '    '
 
         return spaces
-    
 
     @staticmethod
     def get_dns_records(hostname, record_type='All'):
@@ -62,7 +60,7 @@ class GetUtilities:
 
         except (dns.resolver.NXDOMAIN, dns.resolver.NoAnswer, dns.resolver.NoNameservers, dns.exception.Timeout):
             return None
-        
+
     @staticmethod
     def get_clean_list_player_names(player_list):
         """
@@ -74,7 +72,7 @@ class GetUtilities:
         Returns:
             str: A cleaned string representing player names with optional UUIDs.
         """
-        
+
         if not player_list:
             return None
 
@@ -89,7 +87,7 @@ class GetUtilities:
             elif 'name_clean' in player:
                 username_variable = 'name_clean'
                 break
- 
+
         for player in player_list:
             if ' ' in player[username_variable]:
                 texts_with_spaces += 1
@@ -104,11 +102,11 @@ class GetUtilities:
 
         re.findall(
             r'[0-9a-z][0-9a-z][0-9a-z][0-9a-z][0-9a-z][0-9a-z][0-9a-z][0-9a-z]-[0-9a-z][0-9a-z][0-9a-z][0-9a-z]-[0-9a-z][0-9a-z][0-9a-z][0-9a-z]-[0-9a-z][0-9a-z][0-9a-z][0-9a-z]-[0-9a-z][0-9a-z][0-9a-z][0-9a-z][0-9a-z][0-9a-z][0-9a-z][0-9a-z][0-9a-z][0-9a-z][0-9a-z][0-9a-z]',
-             players
+            players
         )
 
         return players
-    
+
     @staticmethod
     def get_player_uuid(username):
         """
@@ -126,7 +124,7 @@ class GetUtilities:
 
         try:
             # Send a GET request to Mojang's API to retrieve user data by username.
-            r = requests.get(f'{api}{username}')
+            r = requests.get(f'{api}{username}', timeout=10)
             r_json = r.json()
 
             # Extract and format the online UUID.
@@ -139,11 +137,11 @@ class GetUtilities:
             # Return a tuple containing the online and offline UUIDs.
             return online_uuid, offline_uuid
 
-        except (JSONDecodeError, KeyError):
+        except (JSONDecodeError, KeyError, requests.RequestException):
             # Handle exceptions and return a tuple with None for the online UUID and the offline UUID.
             offline_uuid = str(uuid.UUID(bytes=hashlib.md5(bytes(f'OfflinePlayer:{username}', 'utf-8')).digest()[:16], version=3))
             return None, offline_uuid
-        
+
     @staticmethod
     def get_uuid_color(username, uuid):
         """
@@ -163,15 +161,15 @@ class GetUtilities:
         # Check if the provided UUID matches the online UUID.
         if uuid == online_uuid:
             return '&a'  # Premium UUID color
-            
+
         # Check if the provided UUID matches the offline UUID.
         elif uuid == offline_uuid:
             return '&7'  # Non-premium UUID color
-            
+
         # If neither the online nor offline UUIDs match, consider it modified.
         else:
             return '&5'  # Modified UUID color
-    
+
     @staticmethod
     def get_ms_color(ms):
         """
@@ -195,7 +193,7 @@ class GetUtilities:
 
         else:
             return f'&c{ms}'
-        
+
     @staticmethod
     def get_ip_address(hostname):
         """
@@ -214,7 +212,7 @@ class GetUtilities:
 
         except socket.error:
             return None
-        
+
     @staticmethod
     def get_ip_info(ip_address, reverse=True):
         """
@@ -229,11 +227,18 @@ class GetUtilities:
             Returns None if the IP information retrieval was unsuccessful.
         """
 
-        r = requests.get(f'http://ip-api.com/json/{ip_address}?fields=status,message,continent,continentCode,country,countryCode,region,regionName,city,timezone,isp,org,as,asname,reverse,query')
-        r_json = r.json()
+        try:
+            r = requests.get(
+                f'http://ip-api.com/json/{ip_address}?fields=status,message,continent,continentCode,country,countryCode,region,regionName,city,timezone,isp,org,as,asname,reverse,query',
+                timeout=10,
+            )
+            r_json = r.json()
+        except (requests.RequestException, ValueError):
+            return None
+
         domains = None
 
-        if r_json['status'] == 'success':        
+        if r_json.get('status') == 'success':
             if reverse:
                 try:
                     domains = socket.gethostbyaddr(ip_address)[0]
@@ -241,9 +246,9 @@ class GetUtilities:
                     pass
 
             return (r_json, domains)
-        
+
         return None
-        
+
     @staticmethod
     def get_ip_ngrok():
         """
@@ -254,17 +259,17 @@ class GetUtilities:
         """
 
         try:
-            r = requests.get('http://localhost:4040/api/tunnels')
+            r = requests.get('http://localhost:4040/api/tunnels', timeout=5)
             r_json = r.json()
             domain = r_json['tunnels'][0]['public_url']
             _, _, domain = domain.partition('//')
             domain, port = domain.split(':')
             ip_address = f"{socket.gethostbyname(domain)}:{port}"
             return ip_address
-        
+
         except (requests.exceptions.RequestException, json.JSONDecodeError, IndexError, socket.gaierror):
             return None
-    
+
     @staticmethod
     def get_headers():
         """
@@ -275,48 +280,27 @@ class GetUtilities:
         """
 
         headers_list = [
-            {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3'},
-            {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3'},
-            {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3'},
-            {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; AS; rv:11.0) like Gecko'},
-            {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64; Trident/7.0; AS; rv:11.0) like Gecko'},
-            {'User-Agent': 'Mozilla/5.0 (Windows NT 6.3; WOW64; Trident/7.0; AS; rv:11.0) like Gecko'},
-            {'User-Agent': 'Mozilla/5.0 (Linux x86_64; rv:78.0) Gecko/20100101 Firefox/78.0'},
-            {'User-Agent': 'Mozilla/5.0 (Linux x86_64; rv:85.0) Gecko/20100101 Firefox/85.0'},
-            {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 11.2; rv:78.0) Gecko/20100101 Firefox/78.0'},
-            {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 11.2; rv:85.0) Gecko/20100101 Firefox/85.0'},
-            {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 11_2_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.182 Safari/537.36'},
-            {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 11_2_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.182 Safari/537.36 Edg/88.0.705.63'},
-            {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 11_2_1) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0.2 Safari/605.1.15'},
-            {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.182 Safari/537.36'},
-            {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.182 Safari/537.36'},
-            {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.182 Safari/537.36'},
-            {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.182 Safari/537.36 Edg/88.0.705.68'},
-            {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101 Firefox/78.0'},
-            {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:85.0) Gecko/20100101 Firefox/85.0'},
-            {'User-Agent': 'Mozilla/5.0 (X11; Fedora; Linux x86_64; rv:78.0) Gecko/20100101 Firefox/78.0'},
-            {'User-Agent': 'Mozilla/5.0 (X11; Fedora; Linux x86_64; rv:85.0) Gecko/20100101 Firefox/85.0'},
-            {'User-Agent': 'Mozilla/5.0 (X11; Linux i686; rv:78.0) Gecko/20100101 Firefox/78.0'},
-            {'User-Agent': 'Mozilla/5.0 (X11; Linux i686; rv:85.0) Gecko/20100101 Firefox/85.0'},
-            {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.182 Safari/537.36'},
-            {'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:78.0) Gecko/20100101 Firefox/78.0'},
-            {'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:85.0) Gecko/20100101 Firefox/85.0'},
-            {'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:78.0) Gecko/20100101 Firefox/78.0'},
-            {'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:85.0) Gecko/20100101 Firefox/85.0'}
+            {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36'},
+            {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36 Edg/135.0.0.0'},
+            {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:137.0) Gecko/20100101 Firefox/137.0'},
+            {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36'},
+            {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.4 Safari/605.1.15'},
+            {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36'},
+            {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:137.0) Gecko/20100101 Firefox/137.0'},
         ]
         return headers_list
-    
+
     @staticmethod
     def get_scan_method(method):
-        """  
-        Returns the scan method. 
+        """
+        Returns the scan method.
 
-        This function is made to simplify the code since the user can enter 
+        This function is made to simplify the code since the user can enter
         the method by numbers or by its respective name.
 
         Args:
             method (str): Scan method
-        
+
         Returns:
             str: Scan method
         """
@@ -329,17 +313,23 @@ class GetUtilities:
 
         if method == '2' or method == 'masscan':
             return 'masscan'
-        
+
+        if method == '3' or method in ('mcscan', 'async'):
+            return 'mcscan'
+
+        if method == '4' or method == 'naabu':
+            return 'naabu'
+
+        if method == '5' or method == 'rustscan':
+            return 'rustscan'
+
     @staticmethod
     def get_loop_argument(argument):
-        """  
-        Returns the scan method. 
-
-        This function is made to simplify the code since the user can enter 
-        the method by numbers or by its respective name.
+        """
+        Returns whether the loop argument is affirmative.
 
         Args:
-            loop (str): Loop argument
+            argument (str): Loop argument
 
         Returns:
             bool: Boolean value that checks if it is positive
@@ -349,7 +339,7 @@ class GetUtilities:
             return True
 
         return False
-            
+
     @staticmethod
     def get_translated_text(text):
         """
@@ -364,7 +354,7 @@ class GetUtilities:
 
         lang = JsonManager.get('lang')
         return JsonManager.get(text, f'./config/lang/{lang}.json')
-    
+
     @staticmethod
     def get_valid_languages():
         """

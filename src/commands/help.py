@@ -9,7 +9,7 @@ CATEGORIES = [
     ('discovery', '&d&lDiscovery & Scanning', ['shodan', 'websearch', 'subdomains', 'scan', 'listening', 'playerlogs']),
     ('attack', '&4&lAttack & Spoofing', ['fakeproxy', 'login', 'pinlogin', 'sendcmd', 'kick', 'kickall', 'rconbrute']),
     ('utilities', '&6&lUtilities & Proxies', ['checker', 'waterfall', 'velocity', 'connect', 'rcon']),
-    ('general', '&a&lGeneral', ['help', 'clear', 'language', 'discord', 'exit']),
+    ('general', '&a&lGeneral', ['help', 'tools', 'clear', 'language', 'discord', 'exit']),
 ]
 
 ALIASES = {
@@ -89,13 +89,14 @@ COMMAND_DOCS = {
     },
     'scan': {
         'shortcut': '08',
-        'summary': 'Scan an IP, IP range, or file of IPs for open Minecraft servers.',
+        'summary': 'Scan an IP, IP range, CIDR, or file of IPs for open Minecraft servers.',
         'notes': [
-            'Methods: nmap (0), qubo / quboscanner (1), masscan (2).',
-            'qubo requires Java; nmap requires Nmap installed; masscan uses masscan.exe.',
-            'Target can also be a .txt file of IPs, or a range like 127.0.0.1-255.',
+            'Methods: nmap (0), qubo (1), masscan (2), mcscan / async (3), naabu (4), rustscan (5).',
+            'mcscan (3) is built in (pure Python asyncio) and needs no Java, Nmap, or Npcap.',
+            'qubo requires Java; nmap requires Nmap; naabu/rustscan require their binaries on PATH.',
+            'Target can be an IP, range (127.0.0.1-255), CIDR (192.168.1.0/24 in mcscan), or .txt file.',
         ],
-        'examples': ['scan 127.0.0.1 25560-25570 1', 'scan 192.168.1.1-254 25565 nmap'],
+        'examples': ['scan 127.0.0.1 25560-25570 3', 'scan 192.168.1.1-254 25565 mcscan'],
     },
     'listening': {
         'shortcut': '09',
@@ -176,7 +177,10 @@ COMMAND_DOCS = {
     'waterfall': {
         'shortcut': '20',
         'summary': 'Start a local Waterfall (BungeeCord) proxy pointing to a target server.',
-        'notes': ['Requires Java 21+. Includes built-in proxy exploit/spoofing plugins.'],
+        'notes': [
+            'Requires Java 21+. Includes built-in proxy exploit/spoofing plugins.',
+            'Note: PaperMC marked Waterfall End-of-Life (Mar 2024); prefer velocity for new setups.',
+        ],
         'examples': ['waterfall 127.0.0.1:25565'],
     },
     'velocity': {
@@ -209,6 +213,16 @@ COMMAND_DOCS = {
             'or category (info, discovery, attack, utilities, general).',
         ],
         'examples': ['help', 'help scan', 'help 12', 'help attack'],
+    },
+    'tools': {
+        'shortcut': '24',
+        'args': ['online?'],
+        'summary': 'Check tool versions, scanner readiness, and optional live API health.',
+        'notes': [
+            'Audits Python, Node.js, Mineflayer, Java, scanners (mcscan/nmap/qubo/masscan/naabu/rustscan),',
+            'proxies, ngrok/bore, and Shodan config. Pass "online" to test live API reachability.',
+        ],
+        'examples': ['tools', 'tools online'],
     },
     'clear': {
         'aliases': ['cls'],

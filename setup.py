@@ -121,18 +121,17 @@ class Setup:
         import requests
 
         if os.name == 'nt':
-            response = requests.get('https://nodejs.org/en/download')
-
-            # Extract the download link using regex
-            link_match = re.search(r'<a href="([^"]+)">64-bit', response.text)
-            if link_match:
-                download_link = link_match.group(1)
+            releases = requests.get('https://nodejs.org/dist/index.json', timeout=15).json()
+            lts = next((r for r in releases if r.get('lts')), None)
+            if lts:
+                ver = lts['version']
+                arch = 'x64' if Setup.bits == '64' else 'x86'
+                download_link = f'https://nodejs.org/dist/{ver}/node-{ver}-{arch}.msi'
                 Setup.download(download_link, 'NodeJS.msi')
-                subprocess.run('NodeJS.msi', shell=True)
+                subprocess.run('msiexec /i NodeJS.msi /qn', shell=True)
                 os.remove('NodeJS.msi')
-
             else:
-                print('Failed to extract download link.')
+                print('Failed to resolve latest Node.js LTS release.')
             
         elif Setup.check_termux():
             subprocess.run(f'pkg install nodejs -y {Setup.hide_output}', shell=True)
@@ -146,18 +145,18 @@ class Setup:
     @staticmethod
     def install_java():
         if os.name == 'nt':
-            download_link = 'https://download.oracle.com/java/19/archive/jdk-19.0.2_windows-x64_bin.exe'
-            Setup.download(download_link, 'jdk-19.0.2_windows-x64_bin.exe')
-            subprocess.run('jdk-19.0.2_windows-x64_bin.exe', shell=True)
-            os.remove('jdk-19.0.2_windows-x64_bin.exe')
+            download_link = 'https://api.adoptium.net/v3/installer/latest/21/ga/windows/x64/jdk/hotspot/normal/eclipse'
+            Setup.download(download_link, 'temurin-jdk21-windows-x64.msi')
+            subprocess.run('msiexec /i temurin-jdk21-windows-x64.msi ADDLOCAL=FeatureMain,FeatureEnvironment,FeatureJarFileRunWith,FeatureJavaHome /qn', shell=True)
+            os.remove('temurin-jdk21-windows-x64.msi')
             print('\n[!] Close this terminal and start the script in a new terminal so it can access the Java variables.')
             return
 
         elif Setup.check_termux():
-            subprocess.run(f'pkg install openjdk-17 -y {Setup.hide_output}', shell=True)
+            subprocess.run(f'pkg install openjdk-21 -y {Setup.hide_output}', shell=True)
 
         else:
-            subprocess.run('sudo apt install openjdk-17-jdk openjdk-17-jre', shell=True)
+            subprocess.run('sudo apt install openjdk-21-jdk openjdk-21-jre -y', shell=True)
 
         print('\n[+] Java installed successfully.')
     
@@ -200,10 +199,10 @@ class Setup:
                 os.remove('Ngrok.zip')
 
         elif Setup.check_termux():
-            subprocess.run('pkg update && pkg upgrade -y && pkg install zip -y && pkg install wget -y && wget https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-arm.zip && unzip ngrok-stable-linux-arm.zip && chmod +x ngrok', shell=True)
+            subprocess.run('pkg update && pkg upgrade -y && pkg install wget tar -y && wget -qO ngrok.tgz https://bin.ngrok.com/c/bNyj1mQVY4c/ngrok-v3-stable-linux-arm64.tgz && tar -xzf ngrok.tgz && chmod +x ngrok && rm ngrok.tgz', shell=True)
             
         else:
-            subprocess.run('curl -s https://ngrok-agent.s3.amazonaws.com/ngrok.asc | sudo tee /etc/apt/trusted.gpg.d/ngrok.asc >/dev/null && echo "deb https://ngrok-agent.s3.amazonaws.com buster main" | sudo tee /etc/apt/sources.list.d/ngrok.list && sudo apt update && sudo apt install ngrok', shell=True)
+            subprocess.run('curl -sSL https://ngrok-agent.s3.amazonaws.com/ngrok.asc | sudo tee /etc/apt/trusted.gpg.d/ngrok.asc >/dev/null && echo "deb https://ngrok-agent.s3.amazonaws.com buster main" | sudo tee /etc/apt/sources.list.d/ngrok.list && sudo apt update && sudo apt install ngrok -y', shell=True)
 
         print('\n[+] Ngrok installed successfully.')
 

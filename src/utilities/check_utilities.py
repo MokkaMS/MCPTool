@@ -1,3 +1,4 @@
+import shutil
 import subprocess
 import socket
 import os
@@ -8,13 +9,13 @@ from src.managers.json_manager import JsonManager
 class CheckUtilities:
     @staticmethod
     def check_language(language):
-        """ 
+        """
         Check if the entered language is valid.
-        
+
         Args:
             language (str): Language.
 
-        Returns: 
+        Returns:
             bool: Returns true if the language is valid.
         """
 
@@ -25,22 +26,23 @@ class CheckUtilities:
             return True
 
         return False
-    
+
     @staticmethod
     def check_local_port(port):
         """
+        Check whether a local TCP port is listening.
         """
 
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.settimeout(2)
         result = s.connect_ex(('127.0.0.1', port))
         s.close()
-            
+
         if result == 0:
             return True
-            
+
         return False
-    
+
     @staticmethod
     def check_termux():
         """
@@ -51,7 +53,7 @@ class CheckUtilities:
         """
 
         return 'ANDROID_ROOT' in os.environ
-    
+
     @staticmethod
     def check_ngrok():
         """
@@ -63,17 +65,17 @@ class CheckUtilities:
 
         if subprocess.call(f'{JsonManager.get(["proxyConfig", "ngrokCommand"])} version >nul 2>&1', shell=True) != 0:
             return False
-        
+
         return True
-    
+
     @staticmethod
     def check_ip_address(ip_address):
-        """ 
+        """
         Check if the ip address is valid.
-        
+
         Args:
             ip_address (str): IP Address.
-        
+
         Returns
             bool: Returns True if the entered ip is valid.
         """
@@ -84,12 +86,12 @@ class CheckUtilities:
 
         except socket.error:
             return False
-        
+
     @staticmethod
     def check_scan_method(method):
-        """ 
+        """
         Check the scanning method is valid.
-        
+
         Args:
             method (str): Scan method
 
@@ -97,13 +99,16 @@ class CheckUtilities:
             bool: Returns True if the scan method is valid.
         """
 
-        methods = ['nmap', 'qubo', 'quboscanner', 'masscan', '0', '1', '2']
+        methods = [
+            'nmap', 'qubo', 'quboscanner', 'masscan', 'mcscan', 'async', 'naabu', 'rustscan',
+            '0', '1', '2', '3', '4', '5',
+        ]
 
         if method in methods:
             return True
 
         return False
-    
+
     @staticmethod
     def check_nmap():
         """
@@ -115,28 +120,40 @@ class CheckUtilities:
 
         if subprocess.call(f'nmap --version >nul 2>&1', shell=True) != 0:
             return False
-        
+
         return True
-    
+
     @staticmethod
     def check_masscan():
         """
-        Check if nmap is installed on the system.
+        Check if masscan is installed on the system or bundled in the project root.
 
         Returns:
             bool: Returns true if it is installed
         """
 
-        if subprocess.call(f'masscan --version >nul 2>&1', shell=True) != 0:
-            return False
+        return shutil.which('masscan') is not None or os.path.exists('masscan.exe')
 
-        return True
-        
+    @staticmethod
+    def check_naabu():
+        """Return True if naabu is available on PATH or in the project directory."""
+        return shutil.which('naabu') is not None or os.path.exists('naabu.exe')
+
+    @staticmethod
+    def check_rustscan():
+        """Return True if rustscan is available on PATH or in the project directory."""
+        return shutil.which('rustscan') is not None or os.path.exists('rustscan.exe')
+
+    @staticmethod
+    def check_bore():
+        """Return True if bore TCP tunnel CLI is available on PATH or in the project directory."""
+        return shutil.which('bore') is not None or os.path.exists('bore.exe')
+
     @staticmethod
     def check_file_encoding(file):
-        """ 
+        """
         Returns the encoding type of the file.
-        
+
         Args:
             file (str): File.
 
@@ -152,12 +169,12 @@ class CheckUtilities:
 
         except (UnicodeError, UnicodeDecodeError, UnicodeEncodeError, LookupError):
             return 'unicode_escape'
-        
+
     @staticmethod
     def check_loop_argument(argument):
-        """ 
-        Check if the loop argument is valid. 
-        
+        """
+        Check if the loop argument is valid.
+
         Args:
             argument: Loop argument.
 
@@ -171,15 +188,15 @@ class CheckUtilities:
             return True
 
         return False
-    
+
     @staticmethod
     def check_ip(ip_address):
-        """ 
+        """
         Check if the ip address is valid.
-        
+
         Args:
             ip_address (str): IP Address.
-        
+
         Returns
             bool: Returns True if the entered ip is valid.
         """
@@ -190,15 +207,15 @@ class CheckUtilities:
 
         except socket.error:
             return False
-    
+
     @staticmethod
     def check_port(port):
-        """ 
+        """
         Check if the entered port is valid.
-        
+
         Args:
             port (str: Ports.
-        
+
         Returns:
             bool: Returns true if the entered port is valid.
         """
@@ -211,7 +228,7 @@ class CheckUtilities:
 
         except ValueError:
             return False
-        
+
     @staticmethod
     def check_ip_port(ip_port):
         """
@@ -219,7 +236,7 @@ class CheckUtilities:
 
         Args:
             ip_port (str): IP Address and Port.
-        
+
         Returns:
             bool: Returns true if it is valid.
         """
@@ -235,6 +252,5 @@ class CheckUtilities:
 
                     except IndexError:
                         return True
-                    
-        return False
 
+        return False

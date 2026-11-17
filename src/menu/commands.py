@@ -25,6 +25,7 @@ from src.commands.waterfall import waterfall_command
 from src.commands.velocity import velocity_command
 from src.commands.connect import connect_command
 from src.commands.rcon import rcon_command
+from src.commands.tools import tools_command
 
 commands = {
     **dict.fromkeys(['cls', 'clear'], clear_command),
@@ -53,5 +54,6 @@ commands = {
     **dict.fromkeys(['21', 'velocity'], velocity_command),
     **dict.fromkeys(['22', 'connect'], connect_command),
     **dict.fromkeys(['23', 'rcon'], rcon_command),
+    **dict.fromkeys(['24', 'tools'], tools_command),
     **dict.fromkeys(['exit', 'quit'], exit_command),
 }

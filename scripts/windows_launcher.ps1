@@ -463,6 +463,9 @@ function Show-StatusReport {
     $nmapPath = Find-NmapPath
     $ngrokPath = Find-BundledOrPathTool 'ngrok.exe'
     $masscanPath = Find-BundledOrPathTool 'masscan.exe'
+    $naabuPath = Find-BundledOrPathTool 'naabu.exe'
+    $rustscanPath = Find-BundledOrPathTool 'rustscan.exe'
+    $borePath = Find-BundledOrPathTool 'bore.exe'
 
     Write-Host ""
     Write-Host "=== MCPTool Environment Status ===" -ForegroundColor Cyan
@@ -517,7 +520,17 @@ function Show-StatusReport {
     }
 
     if ($ngrokPath) {
-        Write-Ok "Ngrok (Opt.) : $ngrokPath"
+        $ngrokVer = (& $ngrokPath version 2>&1) -join ' '
+        if ($ngrokVer -match '(\d+)\.(\d+)') {
+            $nMaj = [int]$Matches[1]; $nMin = [int]$Matches[2]
+            if ($nMaj -lt 3 -or ($nMaj -eq 3 -and $nMin -lt 10)) {
+                Write-Warn "Ngrok (Opt.) : $ngrokVer ($ngrokPath) - outdated; run 'ngrok update' to avoid ERR_NGROK_121"
+            } else {
+                Write-Ok "Ngrok (Opt.) : $ngrokVer ($ngrokPath)"
+            }
+        } else {
+            Write-Ok "Ngrok (Opt.) : $ngrokPath"
+        }
     } else {
         Write-Warn "Ngrok (Opt.) : Not found"
     }
@@ -527,6 +540,11 @@ function Show-StatusReport {
     } else {
         Write-Warn "Masscan      : Not found"
     }
+
+    Write-Ok "MCScan       : Built-in async scanner (method 3 / mcscan)"
+    if ($naabuPath) { Write-Ok "Naabu (Opt.) : $naabuPath" }
+    if ($rustscanPath) { Write-Ok "RustScan(Opt): $rustscanPath" }
+    if ($borePath) { Write-Ok "Bore (Opt.)  : $borePath" }
     Write-Host ""
 }
 

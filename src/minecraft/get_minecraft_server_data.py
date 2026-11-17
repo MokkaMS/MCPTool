@@ -62,7 +62,7 @@ class GetMinecraftServerData:
 
             # Send a GET request to the local API with the server address as a parameter.
             response = requests.get(f'http://127.0.0.1:{local_api_port}/api/minecraft_server_data',
-                            params={'server_address': server, 'bot': bot, 'clean_data': clean_data})
+                            params={'server_address': server, 'bot': bot, 'clean_data': clean_data}, timeout=5)
                 
             # Check if the API request was successful (status code 200).
             if response.status_code == 200:
@@ -99,7 +99,7 @@ class GetMinecraftServerData:
 
         try:
             # Send a GET request to the mcsrvstatus API with the server address.
-            response = requests.get(f'https://api.mcsrvstat.us/3/{server}')
+            response = requests.get(f'https://api.mcsrvstat.us/3/{server}', headers={'User-Agent': 'MCPTool/4.0.5 (https://github.com/MokkaMS/MCPTool)'}, timeout=10)
 
             # Check if the API request was successful (status code 200) and the server is responding (ping is true).
             if response.status_code == 200 and response.json()['online']:
@@ -154,7 +154,7 @@ class GetMinecraftServerData:
                     )
 
             else:
-                response = requests.get(f'https://api.mcsrvstat.us/bedrock/3/{server}')
+                response = requests.get(f'https://api.mcsrvstat.us/bedrock/3/{server}', headers={'User-Agent': 'MCPTool/4.0.5 (https://github.com/MokkaMS/MCPTool)'}, timeout=10)
 
                 if response.status_code == 200 and response.json()['online']:
                     r_json = response.json()
@@ -211,7 +211,7 @@ class GetMinecraftServerData:
 
         try:
             # Send a GET request to the mcsrvstatus API with the server address.
-            response = requests.get(f'https://api.mcstatus.io/v2/status/java/{server}')
+            response = requests.get(f'https://api.mcstatus.io/v2/status/java/{server}', timeout=10)
 
             # Check if the API request was successful (status code 200) and the server is responding (ping is true).
             if response.status_code == 200 and response.json()['online']:
@@ -266,7 +266,7 @@ class GetMinecraftServerData:
                     )
 
             else:
-                response = requests.get(f'https://api.mcstatus.io/v2/status/bedrock/{server}')
+                response = requests.get(f'https://api.mcstatus.io/v2/status/bedrock/{server}', timeout=10)
 
                 if response.status_code == 200 and response.json()['online']:
                     r_json = response.json()

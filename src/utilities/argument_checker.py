@@ -23,7 +23,7 @@ class ArgumentChecker:
         if len(command) == 2:
             command = commands.get(command, command)
 
-        if command in ['cls', 'clear', 'discord', 'exit', 'quit']:
+        if command in ['cls', 'clear', 'discord', 'exit', 'quit', 'tools']:
             return True
 
         if command in ['language', 'server', 'uuid', 'ipinfo', 'dnslookup', 'websearch', 'listening', 'playerlogs', 'checker', 'waterfall', 'shodan']:
@@ -108,6 +108,7 @@ class ArgumentChecker:
             '21': 'velocity',
             '22': 'connect',
             '23': 'rcon',
+            '24': 'tools',
         }
     
     @staticmethod
